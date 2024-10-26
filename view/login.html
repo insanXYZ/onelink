@@ -1,0 +1,14 @@
+{{template "header.html"}}
+{{template "header_auth_layout.html"}}
+<form action="/login" method="post" class="flex flex-col w-[480px] p-7 gap-5">
+    <input type="text" name="email" placeholder="Email" class="input input-bordered w-full" />
+    <input type="password" name="password" placeholder="Password" class="input input-bordered w-ful" />
+    <button class="btn btn-neutral">Neutral</button>
+</form>
+{{ if .Message }}
+<p>
+{{ .Message }}
+</p>
+{{ end }}
+{{template "footer_auth_layout.html"}}
+{{template "footer.html"}}
