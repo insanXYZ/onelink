@@ -27,7 +27,7 @@ func (r *UserRepository) GetWithEmail(ctx context.Context, db *sql.DB, email str
 	}
 	defer rows.Close()
 
-	user := 
+	user := entity.User{}
 
 	for rows.Next() {
 		err = rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
@@ -36,5 +36,5 @@ func (r *UserRepository) GetWithEmail(ctx context.Context, db *sql.DB, email str
 		}
 	}
 
-	return user, nil
+	return &user, nil
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-var Session = sessions.NewCookieStore([]byte("yangtautauaja"))
+var Session = sessions.NewCookieStore([]byte("yANGtAUtAUaJA"))
 
 func CreateSession(c echo.Context, name string, values map[any]any) error {
 	s, err := Session.Get(c.Request(), name)
@@ -28,7 +28,7 @@ func CreateFlashSession(c echo.Context, name string, value any, varflash ...stri
 func GetFlashSession(c echo.Context, name, varflash string) (string, bool) {
 	s, err := Session.Get(c.Request(), name)
 	if err != nil {
-		panic(err.Error())
+		return "", false
 	}
 	f := s.Flashes(varflash)
 	s.Save(c.Request(), c.Response())

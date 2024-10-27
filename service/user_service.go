@@ -48,7 +48,7 @@ func (s *UserService) Login(ctx context.Context, request *model.LoginRequest) (s
 
 	claim := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"name": user.Name,
-		"exp":  time.Now().Add(10 * time.Minute).Unix(),
+		"exp":  time.Now().Add(5 * time.Minute).Unix(),
 	})
 
 	return claim.SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
