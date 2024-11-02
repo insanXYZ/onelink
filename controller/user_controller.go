@@ -29,6 +29,10 @@ func (ctr *UserController) CreateRegisterView(c echo.Context) error {
 	return util.RenderViewHtml(c, 200, "register.html", nil)
 }
 
+func (ctr *UserController) CreateLandingPageView(c echo.Context) error {
+  return util.RenderViewHtml(c, 200, "landing_page.html", nil)
+}
+
 func (ctr *UserController) Login(c echo.Context) error {
 	req := new(model.LoginRequest)
 	err := c.Bind(req)

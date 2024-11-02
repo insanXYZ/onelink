@@ -5,10 +5,5 @@
     <input type="password" name="password" placeholder="Password" class="input input-bordered w-ful" />
     <button class="btn btn-neutral">Neutral</button>
 </form>
-{{ if .Message }}
-<p>
-{{ .Message }}
-</p>
-{{ end }}
 {{template "footer_auth_layout.html"}}
 {{template "footer.html"}}

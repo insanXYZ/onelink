@@ -3,7 +3,6 @@ package middleware
 import (
 	"errors"
 	"fmt"
-	"net/http"
 	"os"
 	"time"
 
@@ -47,30 +46,30 @@ func Guest(next echo.HandlerFunc) echo.HandlerFunc {
 		fmt.Println("to " + c.Path())
 		if token, exist := getCookiesSessionToken(c); exist {
 			claims := jwt.MapClaims{}
-			_, err := jwt.ParseWithClaims(token, &claims, func(t *jwt.Token) (interface{}, error) {
+			_, _ = jwt.ParseWithClaims(token, &claims, func(t *jwt.Token) (interface{}, error) {
 				if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 					return nil, errors.New("invalid signing method")
 				}
 				return []byte(os.Getenv("JWT_SECRET_KEY")), nil
 			})
 
-			if err != nil {
-				if isExpired(claims) {
-					if token, err := refreshToken(claims); err == nil {
-						c.SetCookie(&http.Cookie{
-							Name:  model.SessionToken,
-							Value: token,
-							Path:  "/",
-						})
-					}
-				} else {
-					c.SetCookie(&http.Cookie{
-						Name:   model.SessionToken,
-						MaxAge: -1,
-					})
-					return next(c)
-				}
-			}
+			// if err != nil {
+			// 	if isExpired(claims) {
+			// 		if token, err := refreshToken(claims); err == nil {
+			// 			c.SetCookie(&http.Cookie{
+			// 				Name:  model.SessionToken,
+			// 				Value: token,
+			// 				Path:  "/",
+			// 			})
+			// 		}
+			// 	} else {
+			// 		c.SetCookie(&http.Cookie{
+			// 			Name:   model.SessionToken,
+			// 			MaxAge: -1,
+			// 		})
+			// 		return next(c)
+			// 	}
+			// }
 			return c.Redirect(303, "/")
 		}
 

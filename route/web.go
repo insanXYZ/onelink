@@ -16,6 +16,8 @@ func InitRoute(config *RouteConfig) {
 	e := config.Echo
 	e.Static("/storage", "storage")
 
+	e.GET("/", config.UserController.CreateLandingPageView)
+
 	guest := e.Group("", middleware.Guest)
 	guest.POST("/login", config.UserController.Login)
 	guest.POST("/register", config.UserController.Register)
