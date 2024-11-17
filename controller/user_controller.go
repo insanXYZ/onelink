@@ -30,7 +30,7 @@ func (ctr *UserController) CreateRegisterView(c echo.Context) error {
 }
 
 func (ctr *UserController) CreateLandingPageView(c echo.Context) error {
-  return util.RenderViewHtml(c, 200, "landing_page.html", nil)
+	return util.RenderViewHtml(c, 200, "landing_page.html", nil)
 }
 
 func (ctr *UserController) Login(c echo.Context) error {

@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"time"
 
@@ -42,8 +41,6 @@ func isExpired(claims jwt.MapClaims) bool {
 
 func Guest(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		fmt.Println("go to middleware")
-		fmt.Println("to " + c.Path())
 		if token, exist := getCookiesSessionToken(c); exist {
 			claims := jwt.MapClaims{}
 			_, _ = jwt.ParseWithClaims(token, &claims, func(t *jwt.Token) (interface{}, error) {
