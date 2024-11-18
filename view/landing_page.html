@@ -1,11 +1,29 @@
 {{template "header.html"}}
 
-<div class="w-screen h-screen flex flex-col px-24">
-  <div class="w-full h-1/5 bg-green-200 flex items-center">
-    insan
+<div class="w-screen h-screen flex flex-col px-32 bg-accent">
+  <div class="w-full h-1/5 flex items-center">
+    <div class="w-full p-4 rounded-full flex justify-between items-center bg-base-100">
+      <img src="./storage/image/assets/banner.png" class="h-12 rounded-l-full">
+      <div class="flex gap-5">
+       <button class="btn btn-active btn-neutral">Register</button>
+       <button class="btn btn-active btn-neutral">Login</button>
+      </div>
+    </div>
   </div>
-  <div class="w-full h-4/5 bg-yellow-200">
-    
+  <div class="w-full h-4/5 flex flex-row justify-between items-center">
+      <div class="w-1/2 flex flex-col gap-10">
+        <div class="text-7xl font-bold">
+            <div>One link, endless possibilities.</div>
+           <div>Connect it all!</div>
+        </div>
+        <label class="w-[450px] input input-bordered flex items-center gap-2">
+          @
+          <input type="text" placeholder="mewing"  class="text-2xl"/>
+        </label>
+      </div>
+      <div class="w-1/2 flex items-center justify-center">
+        <img src="./storage/image/assets/sigma_icon.png" class="w-[600px] hover:w-[620px] transition-all">
+      </div>
   </div>
 </div>
 
