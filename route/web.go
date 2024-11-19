@@ -24,4 +24,7 @@ func InitRoute(config *RouteConfig) {
 	guest.GET("/login", config.UserController.CreateLoginView)
 	guest.GET("/register", config.UserController.CreateRegisterView)
 
+	user := e.Group("/user")
+	user.GET("/dashboard", config.UserController.CreateDashboardView)
+
 }
