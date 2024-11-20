@@ -3,7 +3,9 @@ package service
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"radproject/entity"
@@ -36,6 +38,7 @@ func (s *UserService) Login(ctx context.Context, request *model.LoginRequest) (s
 	if err != nil {
 		return "", err
 	}
+	fmt.Println(*request)
 	user, err := s.userRepository.GetWithEmail(ctx, s.db, request.Email)
 	if err != nil {
 		return "", err
@@ -46,9 +49,12 @@ func (s *UserService) Login(ctx context.Context, request *model.LoginRequest) (s
 		return "", err
 	}
 
+	exp, _ := strconv.Atoi(os.Getenv("JWT_EXP"))
+
 	claim := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"name": user.Name,
-		"exp":  time.Now().Add(5 * time.Minute).Unix(),
+		"id":   user.ID,
+		"exp":  time.Now().Add(time.Duration(exp) * time.Minute).Unix(),
 	})
 
 	return claim.SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
@@ -61,10 +67,15 @@ func (s *UserService) Register(ctx context.Context, request *model.RegisterReque
 	}
 	b, _ := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 
-	return s.userRepository.Save(ctx, s.db, &entity.User{
+	user := &entity.User{
 		ID:       uuid.New().String(),
 		Name:     request.Name,
 		Email:    request.Email,
+		Image:    "default_user.jpeg",
 		Password: string(b),
-	})
+	}
+
+	fmt.Println(*user, request.Password)
+
+	return s.userRepository.Save(ctx, s.db, user)
 }

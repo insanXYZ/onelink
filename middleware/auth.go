@@ -2,7 +2,9 @@ package middleware
 
 import (
 	"errors"
+	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"radproject/model"
@@ -27,12 +29,19 @@ func getCookiesSessionToken(c echo.Context) (string, bool) {
 }
 
 func refreshToken(claims jwt.MapClaims) (string, error) {
+
+	exp, _ := strconv.Atoi(os.Getenv("JWT_EXP"))
+
 	claim := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"name": claims["name"],
-		"exp":  time.Now().Add(10 * time.Minute).Unix(),
+		"exp":  time.Now().Add(time.Duration(exp) * time.Minute).Unix(),
 	})
 
 	return claim.SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
+}
+
+func setContextUser(c echo.Context, claims jwt.MapClaims) {
+	c.Set("user", claims)
 }
 
 func isExpired(claims jwt.MapClaims) bool {
@@ -41,35 +50,77 @@ func isExpired(claims jwt.MapClaims) bool {
 
 func Guest(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
+
 		if token, exist := getCookiesSessionToken(c); exist {
 			claims := jwt.MapClaims{}
-			_, _ = jwt.ParseWithClaims(token, &claims, func(t *jwt.Token) (interface{}, error) {
+			_, err := jwt.ParseWithClaims(token, &claims, func(t *jwt.Token) (interface{}, error) {
 				if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 					return nil, errors.New("invalid signing method")
 				}
 				return []byte(os.Getenv("JWT_SECRET_KEY")), nil
 			})
 
-			// if err != nil {
-			// 	if isExpired(claims) {
-			// 		if token, err := refreshToken(claims); err == nil {
-			// 			c.SetCookie(&http.Cookie{
-			// 				Name:  model.SessionToken,
-			// 				Value: token,
-			// 				Path:  "/",
-			// 			})
-			// 		}
-			// 	} else {
-			// 		c.SetCookie(&http.Cookie{
-			// 			Name:   model.SessionToken,
-			// 			MaxAge: -1,
-			// 		})
-			// 		return next(c)
-			// 	}
-			// }
+			if err != nil {
+				if isExpired(claims) {
+					if rtoken, err := refreshToken(claims); err == nil {
+						c.SetCookie(&http.Cookie{
+							Name:  model.SessionToken,
+							Value: rtoken,
+							Path:  "/",
+						})
+						return c.Redirect(303, "/")
+					}
+				}
+				c.SetCookie(&http.Cookie{
+					Name:   model.SessionToken,
+					MaxAge: -1,
+				})
+				return next(c)
+			}
+
 			return c.Redirect(303, "/")
+
 		}
 
 		return next(c)
+	}
+}
+
+func IsLogin(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		if token, exist := getCookiesSessionToken(c); exist {
+			claims := jwt.MapClaims{}
+			_, err := jwt.ParseWithClaims(token, &claims, func(t *jwt.Token) (interface{}, error) {
+				if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, errors.New("invalid signing method")
+				}
+				return []byte(os.Getenv("JWT_SECRET_KEY")), nil
+			})
+
+			if err != nil {
+				if isExpired(claims) {
+					if rtoken, err := refreshToken(claims); err == nil {
+						cookie := &http.Cookie{
+							Name:  model.SessionToken,
+							Value: rtoken,
+							Path:  "/",
+						}
+						c.SetCookie(cookie)
+						setContextUser(c, claims)
+						return next(c)
+					}
+				}
+
+				c.SetCookie(&http.Cookie{
+					Name:   model.SessionToken,
+					MaxAge: -1,
+				})
+				return c.Redirect(303, "/login")
+			}
+			setContextUser(c, claims)
+			return next(c)
+		}
+		return c.Redirect(303, "/login")
 	}
 }

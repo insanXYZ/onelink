@@ -37,14 +37,24 @@ func (ctr *UserController) CreateDashboardView(c echo.Context) error {
 	return util.RenderViewHtml(c, 200, "dashboard.html", nil)
 }
 
+func (ctr *UserController) CreateAccountView(c echo.Context) error {
+	return util.RenderViewHtml(c, 200, "account.html", nil)
+}
+
+func (ctr *UserController) CreateSiteView(c echo.Context) error {
+	return util.RenderViewHtml(c, 200, "site.html", nil)
+}
+
 func (ctr *UserController) Login(c echo.Context) error {
 	req := new(model.LoginRequest)
 	err := c.Bind(req)
 	if err != nil {
+		fmt.Println("error binding" + err.Error())
 		return util.RedirectWithError(c, 303, "/login", err.Error())
 	}
 	token, err := ctr.userService.Login(c.Request().Context(), req)
 	if err != nil {
+		fmt.Println(err.Error())
 		return util.RedirectWithError(c, 303, "/login", err.Error())
 	}
 
@@ -55,7 +65,7 @@ func (ctr *UserController) Login(c echo.Context) error {
 
 	c.SetCookie(cookie)
 
-	return c.Redirect(303, "/dashboard")
+	return c.Redirect(303, "/user/dashboard")
 }
 
 func (ctr *UserController) Register(c echo.Context) error {

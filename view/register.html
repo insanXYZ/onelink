@@ -1,10 +1,16 @@
 {{template "header.html"}}
 {{template "header_auth_layout.html"}}
-<form action="/register" method="post" class="flex flex-col w-[480px] p-7 gap-5">
-  <input type="text" name="name" placeholder="Name" class="input-bordered input w-full">
+<div class="flex flex-col w-[480px] p-7 gap-2 bg-base-100">
+  <form action="/register" method="post" class="flex flex-col w-full gap-5">
+    <input type="text" name="name" placeholder="Name" class="input-bordered input w-full">
     <input type="text" name="email" placeholder="Email" class="input input-bordered w-full" />
     <input type="password" name="password" placeholder="Password" class="input input-bordered w-ful" />
-    <button class="btn btn-neutral">Neutral</button>
-</form>
+    <button class="btn btn-neutral">Register</button>
+  </form>
+  <div>
+    have an account? <a href="/login">Login</a>
+  </div>
+</div>
+
 {{template "footer_auth_layout.html"}}
 {{template "footer.html"}}

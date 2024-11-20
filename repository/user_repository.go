@@ -14,8 +14,8 @@ func NewUserRepository() *UserRepository {
 }
 
 func (r *UserRepository) Save(ctx context.Context, db *sql.DB, model *entity.User) error {
-	query := "insert into users(id,name,email,password) values(?,?,?,?)"
-	_, err := db.ExecContext(ctx, query, model.ID, model.Name, model.Email, model.Password)
+	query := "insert into users(id,name,email,password,image) values(?,?,?,?,?)"
+	_, err := db.ExecContext(ctx, query, model.ID, model.Name, model.Email, model.Password, model.Image)
 	return err
 }
 
@@ -30,7 +30,7 @@ func (r *UserRepository) GetWithEmail(ctx context.Context, db *sql.DB, email str
 	user := entity.User{}
 
 	for rows.Next() {
-		err = rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
+		err = rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Image, &user.CreatedAt, &user.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
