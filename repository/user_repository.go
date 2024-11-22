@@ -38,3 +38,19 @@ func (r *UserRepository) GetWithEmail(ctx context.Context, db *sql.DB, email str
 
 	return &user, nil
 }
+
+func (r *UserRepository) SearchById(ctx context.Context, db *sql.DB, id string) (*entity.User, error) {
+	user := new(entity.User)
+
+	query := "select * from users where id = ?"
+	err := db.QueryRowContext(ctx, query, id).Scan(
+		&user.ID,
+		&user.Name,
+		&user.Email,
+		&user.Password,
+		&user.Image,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	return user, err
+}

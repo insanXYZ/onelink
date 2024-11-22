@@ -38,7 +38,6 @@ func (s *UserService) Login(ctx context.Context, request *model.LoginRequest) (s
 	if err != nil {
 		return "", err
 	}
-	fmt.Println(*request)
 	user, err := s.userRepository.GetWithEmail(ctx, s.db, request.Email)
 	if err != nil {
 		return "", err
@@ -78,4 +77,14 @@ func (s *UserService) Register(ctx context.Context, request *model.RegisterReque
 	fmt.Println(*user, request.Password)
 
 	return s.userRepository.Save(ctx, s.db, user)
+}
+
+func (s *UserService) GetAccount(ctx context.Context, claim jwt.MapClaims) (*model.UserResponse, error) {
+	user, err := s.userRepository.SearchById(ctx, s.db, claim["id"].(string))
+	if err != nil {
+		return nil, err
+	}
+
+	resp := model.EntityToUserResponse(user)
+	return resp, nil
 }

@@ -5,8 +5,14 @@
     <div class="w-full p-4 rounded-full flex justify-between items-center bg-base-100">
       <img src="./storage/image/assets/banner.png" class="h-12 rounded-l-full">
       <div class="flex gap-5">
-       <button class="btn btn-active btn-neutral">Register</button>
-       <button class="btn btn-active btn-neutral">Login</button>
+        {{ if eq .Data.isLogin false}}
+        <a href="/register" class="btn btn-active btn-neutral">Register</a>
+        <a href="/login" class="btn btn-active btn-neutral">Login</a>
+        {{else}}
+
+        <a href="/user/dashboard" class="btn btn-active btn-neutral">Dashboard</a>
+        <a href="/user/account" class="btn btn-active btn-neutral">Account</a>
+        {{end}}
       </div>
     </div>
   </div>

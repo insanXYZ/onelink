@@ -1310,6 +1310,10 @@ html {
   display: flex;
 }
 
+.hidden {
+  display: none;
+}
+
 .h-1\/5 {
   height: 20%;
 }
@@ -1336,6 +1340,10 @@ html {
 
 .w-1\/5 {
   width: 20%;
+}
+
+.w-24 {
+  width: 6rem;
 }
 
 .w-4\/5 {
@@ -1394,12 +1402,24 @@ html {
   gap: 1.25rem;
 }
 
+.gap-7 {
+  gap: 1.75rem;
+}
+
+.overflow-y-scroll {
+  overflow-y: scroll;
+}
+
 .rounded-3xl {
   border-radius: 1.5rem;
 }
 
 .rounded-full {
   border-radius: 9999px;
+}
+
+.rounded-xl {
+  border-radius: 0.75rem;
 }
 
 .rounded-l-full {
@@ -1417,13 +1437,12 @@ html {
   background-color: var(--fallback-b1,oklch(var(--b1)/var(--tw-bg-opacity, 1)));
 }
 
-.bg-black {
-  --tw-bg-opacity: 1;
-  background-color: rgb(0 0 0 / var(--tw-bg-opacity, 1));
-}
-
 .p-4 {
   padding: 1rem;
+}
+
+.p-5 {
+  padding: 1.25rem;
 }
 
 .p-6 {

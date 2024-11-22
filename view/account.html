@@ -1,4 +1,19 @@
 {{template "header.html"}}
 {{template "header_user_layout.html"}}
+
+<div class="w-full h-full flex items-center justify-center">
+  <div class="w-full h-4/5 overflow-y-scroll flex flex-col items-center gap-7">
+    <label for="inputImage">
+<img src="{{.Data.Image}}" class="w-24 rounded-full">
+    </label>
+    <input type="file" name="Image" id="inputImage" class="hidden">
+  <div class="w-full rounded-xl p-5 bg-base-100">
+    <input type="text" name="name" placeholder="Email" class="input input-bordered w-full" value="{{.Data.Name}}" />
+    <input type="text" name="email" placeholder="Email" class="input input-bordered w-full" value="{{.Data.Password}}"/>
+  </div>
+</div>
+</div>
+
+
 {{template "footer_user_layout.html"}}
 {{template "footer.html"}}

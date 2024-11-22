@@ -34,6 +34,7 @@ func refreshToken(claims jwt.MapClaims) (string, error) {
 
 	claim := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"name": claims["name"],
+		"id":   claims["id"],
 		"exp":  time.Now().Add(time.Duration(exp) * time.Minute).Unix(),
 	})
 

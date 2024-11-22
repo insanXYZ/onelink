@@ -8,6 +8,7 @@ import (
 	"radproject/service"
 	"radproject/util"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
@@ -30,7 +31,16 @@ func (ctr *UserController) CreateRegisterView(c echo.Context) error {
 }
 
 func (ctr *UserController) CreateLandingPageView(c echo.Context) error {
-	return util.RenderViewHtml(c, 200, "landing_page.html", nil)
+
+	auth := map[string]bool{
+		"isLogin": false,
+	}
+
+	if _, err := c.Cookie(model.SessionToken); err == nil {
+		auth["isLogin"] = true
+	}
+
+	return util.RenderViewHtml(c, 200, "landing_page.html", auth)
 }
 
 func (ctr *UserController) CreateDashboardView(c echo.Context) error {
@@ -38,7 +48,16 @@ func (ctr *UserController) CreateDashboardView(c echo.Context) error {
 }
 
 func (ctr *UserController) CreateAccountView(c echo.Context) error {
-	return util.RenderViewHtml(c, 200, "account.html", nil)
+	claims := c.Get("user").(jwt.MapClaims)
+	resp, err := ctr.userService.GetAccount(c.Request().Context(), claims)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	err = util.RenderViewHtml(c, 200, "account.html", *resp)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return err
 }
 
 func (ctr *UserController) CreateSiteView(c echo.Context) error {
@@ -49,12 +68,10 @@ func (ctr *UserController) Login(c echo.Context) error {
 	req := new(model.LoginRequest)
 	err := c.Bind(req)
 	if err != nil {
-		fmt.Println("error binding" + err.Error())
 		return util.RedirectWithError(c, 303, "/login", err.Error())
 	}
 	token, err := ctr.userService.Login(c.Request().Context(), req)
 	if err != nil {
-		fmt.Println(err.Error())
 		return util.RedirectWithError(c, 303, "/login", err.Error())
 	}
 
