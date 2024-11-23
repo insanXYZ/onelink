@@ -1,7 +1,49 @@
 {{template "header.html"}}
 {{template "header_user_layout.html"}}
 
+<div class="w-full h-full flex items-center justify-center">
+  <div class="w-full h-5/6 flex flex-col">
+    <!--topbar-->
+    <div class="flex justify-between items-center bg-base-100 p-2 rounded-full">
+      <button class="btn btn-neutral w-32" onclick="my_modal_2.showModal()">create</button>
+      <dialog id="my_modal_2" class="modal">
+        <form action="/user/site" method="post" class="modal-box flex flex-col gap-5" enctype="multipart/form-data">
+          <h3 class="text-lg font-bold">Create site</h3>
+          <label for="inputImage" class="w-full h-52 flex items-center justify-center border p-14 rounded-xl border-dashed border-accent">
+            <img src="/storage/image/assets/shop_icon.svg" id="previewImage" class="w-full h-full object-contain">
+          </label>
+          <input type="file" id="inputImage" name="image" accept="image/*" class="hidden" required>
+          <input type="text" name="title" placeholder="Title" class="input input-bordered w-full" min="3" required />
+          <button class="btn-neutral btn">create</button>
+        </form>
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+      </dialog>
+      <div>
+        jumlah 3
+      </div>
+    </div>
 
+    <!--datatable-->
+    
+  </div>
+</div>
 
 {{template "footer_user_layout.html"}}
+
+<script>
+    document.getElementById('inputImage').addEventListener('change', function(event) {
+    const file = event.target.files[0];  
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        document.getElementById('previewImage').src = e.target.result;
+      };
+
+      reader.readAsDataURL(file);
+    }
+  });
+</script>
 {{template "footer.html"}}

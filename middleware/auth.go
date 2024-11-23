@@ -75,6 +75,7 @@ func Guest(next echo.HandlerFunc) echo.HandlerFunc {
 				c.SetCookie(&http.Cookie{
 					Name:   model.SessionToken,
 					MaxAge: -1,
+					Path:   "/",
 				})
 				return next(c)
 			}
@@ -116,6 +117,7 @@ func IsLogin(next echo.HandlerFunc) echo.HandlerFunc {
 				c.SetCookie(&http.Cookie{
 					Name:   model.SessionToken,
 					MaxAge: -1,
+					Path:   "/",
 				})
 				return c.Redirect(303, "/login")
 			}

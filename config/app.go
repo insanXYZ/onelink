@@ -21,16 +21,20 @@ type BootstrapConfigs struct {
 func (c *BootstrapConfigs) Run() {
 	// repositoryInit
 	UserRepository := repository.NewUserRepository()
+	SiteRepository := repository.NewSiteRepository()
 
 	// serviceInit
 	UserService := service.NewUserService(c.Validator, c.Db, UserRepository)
+	SiteService := service.NewSiteService(c.Validator, c.Db, SiteRepository)
 
 	// controllerInit
 	UserController := controller.NewUserController(UserService)
+	SiteController := controller.NewSiteController(SiteService)
 
 	routeConfig := &route.RouteConfig{
 		Echo:           c.Echo,
 		UserController: UserController,
+		SiteController: SiteController,
 	}
 
 	route.InitRoute(routeConfig)

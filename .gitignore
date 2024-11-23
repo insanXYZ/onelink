@@ -1,3 +1,8 @@
 .env
 /tmp
 /node_modules
+
+storage/image/user/*
+storage/image/site/*
+!storage/image/user/default_user.jpeg
+

@@ -10,6 +10,7 @@ import (
 type RouteConfig struct {
 	Echo           *echo.Echo
 	UserController *controller.UserController
+	SiteController *controller.SiteController
 }
 
 func InitRoute(config *RouteConfig) {
@@ -27,8 +28,11 @@ func InitRoute(config *RouteConfig) {
 	user := e.Group("/user", middleware.IsLogin)
 	user.GET("/dashboard", config.UserController.CreateDashboardView)
 	user.GET("/account", config.UserController.CreateAccountView)
-	user.GET("/site", config.UserController.CreateSiteView)
-
 	user.PATCH("/account", config.UserController.UpdateUser)
+	user.GET("/logout", config.UserController.Logout)
+
+	site := user.Group("/site")
+	site.GET("", config.SiteController.CreateSiteView)
+	site.POST("", config.SiteController.CreateSite)
 
 }

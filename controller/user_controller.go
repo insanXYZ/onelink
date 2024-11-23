@@ -53,28 +53,20 @@ func (ctr *UserController) CreateAccountView(c echo.Context) error {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	err = util.RenderViewHtml(c, 200, "account.html", *resp)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	return err
+	return util.RenderViewHtml(c, 200, "account.html", *resp)
 }
-
-func (ctr *UserController) CreateSiteView(c echo.Context) error {
-	return util.RenderViewHtml(c, 200, "site.html", nil)
-}
-
 func (ctr *UserController) Login(c echo.Context) error {
+	const message = "login failed"
+
 	req := new(model.LoginRequest)
 	err := c.Bind(req)
 	if err != nil {
-		return util.RedirectWithError(c, 303, "/login", err.Error())
+		return util.RedirectWithError(c, 303, "/login", message)
 	}
-	fmt.Println(req)
 	token, err := ctr.userService.Login(c.Request().Context(), req)
 	if err != nil {
 		fmt.Println(err.Error())
-		return util.RedirectWithError(c, 303, "/login", err.Error())
+		return util.RedirectWithError(c, 303, "/login", message)
 	}
 
 	cookie := new(http.Cookie)
@@ -124,4 +116,15 @@ func (ctr *UserController) UpdateUser(c echo.Context) error {
 	}
 
 	return c.Redirect(303, "/user/account")
+}
+
+func (ctr *UserController) Logout(c echo.Context) error {
+	cookie := &http.Cookie{
+		Name:   model.SessionToken,
+		MaxAge: -1,
+		Path:   "/",
+	}
+	c.SetCookie(cookie)
+
+	return c.Redirect(303, "/")
 }
