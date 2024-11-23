@@ -4,8 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"radproject/entity"
@@ -16,6 +18,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/insanXYZ/sage"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -38,7 +41,7 @@ func (s *UserService) Login(ctx context.Context, request *model.LoginRequest) (s
 	if err != nil {
 		return "", err
 	}
-	user, err := s.userRepository.GetWithEmail(ctx, s.db, request.Email)
+	user, err := s.userRepository.Select(ctx, s.db, "email", request.Email)
 	if err != nil {
 		return "", err
 	}
@@ -79,12 +82,61 @@ func (s *UserService) Register(ctx context.Context, request *model.RegisterReque
 	return s.userRepository.Save(ctx, s.db, user)
 }
 
-func (s *UserService) GetAccount(ctx context.Context, claim jwt.MapClaims) (*model.UserResponse, error) {
-	user, err := s.userRepository.SearchById(ctx, s.db, claim["id"].(string))
+func (s *UserService) GetAccount(ctx context.Context, claims jwt.MapClaims) (*model.UserResponse, error) {
+	user, err := s.userRepository.Select(ctx, s.db, "id", claims["id"].(string))
 	if err != nil {
 		return nil, err
 	}
 
 	resp := model.EntityToUserResponse(user)
 	return resp, nil
+}
+
+func (s *UserService) UpdateUser(ctx context.Context, claims jwt.MapClaims, request *model.UpdateUserRequest) error {
+	err := s.validator.Struct(request)
+	if err != nil {
+		return err
+	}
+
+	if request.Image != nil {
+		err = sage.Validate(request.Image)
+		if err != nil {
+			return err
+		}
+	}
+
+	user, err := s.userRepository.Select(ctx, s.db, "id", claims["id"].(string))
+	if err != nil {
+		return err
+	}
+
+	if request.Name != "" {
+		user.Name = request.Name
+	}
+	if request.Email != "" {
+		user.Email = request.Email
+	}
+	if request.Image != nil {
+
+		open, err := request.Image.Open()
+		split := strings.Split(request.Image.Filename, ".")
+		ext := split[len(split)-1]
+
+		filename := "user-" + user.ID + "-" + strconv.Itoa(int(time.Now().Unix())) + "." + ext
+		dsn, err := os.Create("storage/image/user/" + filename)
+		if err != nil {
+			return err
+		}
+		defer dsn.Close()
+
+		_, err = io.Copy(dsn, open)
+		if err != nil {
+			return err
+		}
+
+		user.Image = filename
+	}
+
+	return s.userRepository.UpdateAccount(ctx, s.db, user)
+
 }

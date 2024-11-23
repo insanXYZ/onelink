@@ -70,8 +70,10 @@ func (ctr *UserController) Login(c echo.Context) error {
 	if err != nil {
 		return util.RedirectWithError(c, 303, "/login", err.Error())
 	}
+	fmt.Println(req)
 	token, err := ctr.userService.Login(c.Request().Context(), req)
 	if err != nil {
+		fmt.Println(err.Error())
 		return util.RedirectWithError(c, 303, "/login", err.Error())
 	}
 
@@ -100,4 +102,26 @@ func (ctr *UserController) Register(c echo.Context) error {
 		fmt.Println("error redirect " + err.Error())
 	}
 	return err
+}
+
+func (ctr *UserController) UpdateUser(c echo.Context) error {
+	claims := c.Get("user").(jwt.MapClaims)
+
+	req := new(model.UpdateUserRequest)
+	err := c.Bind(req)
+	if err != nil {
+		return util.RedirectWithError(c, 303, "/user/account", err.Error())
+	}
+
+	file, err := c.FormFile("image")
+	if err == nil {
+		req.Image = file
+	}
+
+	err = ctr.userService.UpdateUser(c.Request().Context(), claims, req)
+	if err != nil {
+		return util.RedirectWithError(c, 303, "/user/account", err.Error())
+	}
+
+	return c.Redirect(303, "/user/account")
 }

@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"mime/multipart"
+	"time"
+)
 
 type UserResponse struct {
 	ID        string    `json:"id,omitempty"`
@@ -21,4 +24,10 @@ type RegisterRequest struct {
 	Name     string `validate:"min=3,required" form:"name"`
 	Email    string `validate:"email,required" form:"email"`
 	Password string `validate:"min=6,required" form:"password"`
+}
+
+type UpdateUserRequest struct {
+	Name  string `validate:"omitempty,min=3" form:"name"`
+	Email string `validate:"omitempty,email" form:"email"`
+	Image *multipart.FileHeader
 }

@@ -29,4 +29,6 @@ func InitRoute(config *RouteConfig) {
 	user.GET("/account", config.UserController.CreateAccountView)
 	user.GET("/site", config.UserController.CreateSiteView)
 
+	user.PATCH("/account", config.UserController.UpdateUser)
+
 }

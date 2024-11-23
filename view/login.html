@@ -2,8 +2,8 @@
 {{template "header_auth_layout.html"}}
 <div class="flex flex-col w-[480px] p-7 gap-2 bg-base-100">
   <form action="/login" method="post" class="flex flex-col w-full gap-5">
-    <input type="text" name="email" placeholder="Email" class="input input-bordered w-full" />
-    <input type="password" name="password" placeholder="Password" class="input input-bordered w-ful" />
+    <input type="email" name="email" placeholder="Email" class="input input-bordered w-full" required />
+    <input type="password" name="password" placeholder="Password" class="input input-bordered w-ful" min="6" required/>
     <button class="btn btn-neutral">Login</button>
   </form>
   <div>

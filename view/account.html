@@ -4,16 +4,72 @@
 <div class="w-full h-full flex items-center justify-center">
   <div class="w-full h-4/5 overflow-y-scroll flex flex-col items-center gap-7">
     <label for="inputImage">
-<img src="{{.Data.Image}}" class="w-24 rounded-full">
+      <img id="previewImage" src="{{.Data.Image}}" class="w-64 rounded-full">
     </label>
-    <input type="file" name="Image" id="inputImage" class="hidden">
-  <div class="w-full rounded-xl p-5 bg-base-100">
-    <input type="text" name="name" placeholder="Email" class="input input-bordered w-full" value="{{.Data.Name}}" />
-    <input type="text" name="email" placeholder="Email" class="input input-bordered w-full" value="{{.Data.Password}}"/>
+    <input type="file" name="image" id="inputImage" accept="image/*"  class="hidden">
+  <div class="w-2/3 rounded-xl p-5 bg-base-100 flex flex-col gap-5">
+    <input type="text" name="name" placeholder="Name" class="input input-bordered w-full" value="{{.Data.Name}}" />
+    <input type="text" name="email" placeholder="Email" class="input input-bordered w-full" value="{{.Data.Email}}"/>
+    <button onclick="patchUser();" class="btn btn-neutral">Save Changes</button>
   </div>
+    {{.Message}}
 </div>
 </div>
 
 
 {{template "footer_user_layout.html"}}
+<script>
+
+  document.getElementById('inputImage').addEventListener('change', function(event) {
+    const file = event.target.files[0];  
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        document.getElementById('previewImage').src = e.target.result;
+      };
+
+      reader.readAsDataURL(file);
+    }
+  });
+
+
+function patchUser() {
+    const name = document.querySelector('input[name="name"]').value;
+    const email = document.querySelector('input[name="email"]').value;
+    const imageInput = document.querySelector('input[name="image"]');
+    const imageFile = imageInput.files[0];
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('email', email);
+    
+    if (imageFile) {
+        formData.append('image', imageFile);
+    }
+
+    fetch('http://localhost:1323/user/account', {
+        method: 'PATCH',
+        body: formData,
+    });
+    //.then((response) => {
+    //    console.log('PATCH Response.status: ', response.status);
+    //    if (response.status !== 204) {
+    //        return response.json();
+    //    } else {
+    //        return response.statusText;
+    //    }
+    //})
+    //.then((data) => {
+    //    alert(data); 
+    //})
+    //.catch((error) => {
+    //    console.error('Error:', error);
+    //    alert('Terjadi kesalahan saat mengirim data.');
+    //});
+
+    window.location.reload();
+}
+
+</script>
 {{template "footer.html"}}

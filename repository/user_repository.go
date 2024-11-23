@@ -19,31 +19,11 @@ func (r *UserRepository) Save(ctx context.Context, db *sql.DB, model *entity.Use
 	return err
 }
 
-func (r *UserRepository) GetWithEmail(ctx context.Context, db *sql.DB, email string) (*entity.User, error) {
-	query := "select * from users where email = ?"
-	rows, err := db.QueryContext(ctx, query, email)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	user := entity.User{}
-
-	for rows.Next() {
-		err = rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Image, &user.CreatedAt, &user.UpdatedAt)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return &user, nil
-}
-
-func (r *UserRepository) SearchById(ctx context.Context, db *sql.DB, id string) (*entity.User, error) {
+func (r *UserRepository) Select(ctx context.Context, db *sql.DB, with, value string) (*entity.User, error) {
 	user := new(entity.User)
 
-	query := "select * from users where id = ?"
-	err := db.QueryRowContext(ctx, query, id).Scan(
+	query := "select * from users where " + with + " = ?"
+	err := db.QueryRowContext(ctx, query, value).Scan(
 		&user.ID,
 		&user.Name,
 		&user.Email,
@@ -53,4 +33,10 @@ func (r *UserRepository) SearchById(ctx context.Context, db *sql.DB, id string) 
 		&user.UpdatedAt,
 	)
 	return user, err
+}
+
+func (r *UserRepository) UpdateAccount(ctx context.Context, db *sql.DB, ent *entity.User) error {
+	query := "update users set name = ? , email = ?, image = ? where id = ?"
+	_, err := db.ExecContext(ctx, query, ent.Name, ent.Email, ent.Image, ent.ID)
+	return err
 }
