@@ -4,7 +4,7 @@
 <div class="w-full h-full flex items-center justify-center">
   <div class="w-full h-4/5 overflow-y-scroll flex flex-col items-center gap-7">
     <label for="inputImage">
-      <img id="previewImage" src="{{.Data.Image}}" class="w-64 rounded-full">
+      <img id="previewImage" src="{{.Data.Image}}" class="w-64 rounded-full aspect-square object-cover">
     </label>
     <input type="file" name="image" id="inputImage" accept="image/*"  class="hidden">
   <div class="w-2/3 rounded-xl p-5 bg-base-100 flex flex-col gap-5">
@@ -52,7 +52,9 @@ function patchUser() {
         method: 'PATCH',
         body: formData,
     });
-    window.location.reload();
+    setTimeout(function(){
+      window.location.reload();
+    },500)
 }
 
 </script>

@@ -2,16 +2,22 @@ package util
 
 import (
 	"radproject/model"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
 
-func RedirectWithError(c echo.Context, statusCode int, url, errorMessage string) error {
-	CreateFlashSession(c, model.SessionMessage, errorMessage, "error_message")
-	return c.Redirect(statusCode, url)
+func Redirect(c echo.Context, url string) error {
+	c.Response().Header().Add("Date", time.Now().Format(time.DateOnly))
+	return c.Redirect(303, url)
 }
 
-func RenderViewHtml(c echo.Context, statusCode int, namefile string, data any) error {
+func RedirectWithError(c echo.Context, url, errorMessage string) error {
+	CreateFlashSession(c, model.SessionMessage, errorMessage, "error_message")
+	return Redirect(c, url)
+}
+
+func RenderViewHtml(c echo.Context, namefile string, data any) error {
 	response := model.ResponseHttp{
 		Data: data,
 	}
@@ -20,5 +26,5 @@ func RenderViewHtml(c echo.Context, statusCode int, namefile string, data any) e
 		response.Message = flash
 	}
 
-	return c.Render(statusCode, namefile, response)
+	return c.Render(200, namefile, response)
 }

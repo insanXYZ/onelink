@@ -80,16 +80,15 @@
   });
 
     function DeleteSite(id){
+      if(confirm("are you sure want delete this site")) {
+        fetch('http://localhost:1323/user/site/'+id, {
+            method: 'DELETE',
+        });
 
-      var formData = new FormData();
-      formData.append("id",id)
-
-      fetch('http://localhost:1323/user/site', {
-          method: 'DELETE',
-          body: formData,
-      });
-
-      window.location.reload();
+        setTimeout(function(){
+          window.location.reload();
+        },500)
+      }
     } 
 </script>
 

@@ -6,13 +6,14 @@ import (
 )
 
 type SiteResponse struct {
-	Id         string    `json:"id,omitempty"`
-	Domain     string    `json:"domain,omitempty"`
-	Title      string    `json:"title,omitempty"`
-	Image      string    `json:"image,omitempty"`
-	User_Id    string    `json:"user_id,omitempty"`
-	Created_At time.Time `json:"created_at,omitempty"`
-	Updated_At time.Time `json:"updated_at,omitempty"`
+	Id         string         `json:"id,omitempty"`
+	Domain     string         `json:"domain,omitempty"`
+	Title      string         `json:"title,omitempty"`
+	Image      string         `json:"image,omitempty"`
+	User_Id    string         `json:"user_id,omitempty"`
+	Links      []LinkResponse `json:"links,omitempty"`
+	Created_At time.Time      `json:"created_at,omitempty"`
+	Updated_At time.Time      `json:"updated_at,omitempty"`
 }
 
 type CreateSiteRequest struct {
@@ -22,5 +23,12 @@ type CreateSiteRequest struct {
 }
 
 type DeleteSiteRequest struct {
-	Id string `form:"id" validate:"required"`
+	Id string `param:"id" validate:"required"`
+}
+
+type UpdateSiteRequest struct {
+	Id     string `param:"id" validate:"required"`
+	Domain string `form:"domain" validate:"omitempty,min=3"`
+	Title  string `form:"title" validate:"omitempty,min=3"`
+	Image  *multipart.FileHeader
 }

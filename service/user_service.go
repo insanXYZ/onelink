@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -76,8 +75,6 @@ func (s *UserService) Register(ctx context.Context, request *model.RegisterReque
 		Image:    "default_user.jpeg",
 		Password: string(b),
 	}
-
-	fmt.Println(*user, request.Password)
 
 	return s.userRepository.Save(ctx, s.db, user)
 }

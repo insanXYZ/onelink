@@ -11,6 +11,7 @@ type RouteConfig struct {
 	Echo           *echo.Echo
 	UserController *controller.UserController
 	SiteController *controller.SiteController
+	LinkController *controller.LinkController
 }
 
 func InitRoute(config *RouteConfig) {
@@ -37,8 +38,11 @@ func InitRoute(config *RouteConfig) {
 	})
 	site.GET("", config.SiteController.CreateSiteView)
 	site.POST("", config.SiteController.CreateSite)
-	site.DELETE("", config.SiteController.Delete)
-
+	site.DELETE("/:id", config.SiteController.Delete)
 	site.GET("/:id", config.SiteController.CreateEditSiteView)
+	site.PATCH("/:id", config.SiteController.Update)
+
+	site.POST("/:id", config.LinkController.CreateLink)
+	site.DELETE("/:site_id/:link_id", config.LinkController.Delete)
 
 }

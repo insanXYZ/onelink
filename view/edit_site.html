@@ -3,17 +3,130 @@
 
 
 <div class="w-full h-full flex items-center justify-center">
-  <div class="w-full h-[89%] flex flex-col gap-5 bg-blue-300">
+  <div class="w-full h-[89%] flex flex-col gap-5">
     <!--topbar-->
-    <div class="flex justify-between items-center bg-base-100 p-2 rounded-full">
+    <div class="flex flex-col gap-4 bg-base-100 p-5 rounded-xl">
+      <div class="flex w-full h-28 gap-5">
+        <label for="inputImage" class="w-1/6 flex justify-center">
+          <img id="previewImage" src="{{.Data.Image}}" class="h-full object-cover rounded-full aspect-square ">
+        </label>
+        <input type="file" name="image" id="inputImage" class="hidden">
+        <div class="flex w-full flex-col gap-2">
+          <input type="text" name="domain" placeholder="Domain" value="{{.Data.Domain}}" class="input input-bordered w-full" required />
+          <input type="hidden" name="site_id" value="{{.Data.Id}}">
+          <input type="text" name="title" placeholder="Title" value="{{.Data.Title}}" class="input input-bordered w-full" required />
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-neutral" onclick="my_modal_2.showModal()">Create link</button>
+        <dialog id="my_modal_2" class="modal">
+          <form method="post" enctype="multipart/form-data" action="/user/site/{{.Data.Id}}" class="modal-box flex flex-col gap-5">
+            <h3 class="text-lg font-bold">Create link</h3>
+            <input type="text" name="title" placeholder="Title" class="input input-bordered w-full" required>
+            <input type="text" name="href" placeholder="Link" class="input input-bordered w-full" required>
+            <button class="btn btn-neutral">Create link</button>
+          </form>
+          <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+          </form>
+        </dialog>
+        <button onclick="copySite();" class="btn btn-neutral">Share site</button>
+        <button onclick="patchSite();" class="btn btn-neutral">Save Changes</button>
+      </div>    
     </div>
 
     <!--datatable-->
     <div class="w-full h-full p-4 bg-base-100 rounded-xl overflow-y-scroll">
-
+      <table id="linkTable">
+          <thead>
+              <tr>
+                  <th>Id</th>
+                  <th>Title</th>
+                  <th>Link</th>
+                  <th>Action</th>
+              </tr>
+          </thead>
+          <tbody>
+            {{if .Data.Links}}
+              {{range $i,$v := .Data.Links}}
+                <tr>
+                  <th>{{$v.Id}}</th>
+                  <th>{{$v.Title}}</th>
+                  <th>{{$v.Href}}</th>
+                  <th>
+                      <button onclick="deleteLink('{{$v.Id}}');"><img src="/storage/image/assets/trash_icon.svg" class="w-7 rounded-xl p-1 bg-red-300"></button>
+                  </th>
+                </tr>
+              {{end}}
+          {{end}}
+          </tbody>
+      </table>
     </div>
   </div>
 </div>
 
 {{template "footer_user_layout.html"}}
 {{template "footer.html"}}
+<script src="/storage/js/jquery.js"></script>
+<script src="/storage/js/datatables.min.js"></script>
+<script>
+    $(document).ready( function () {
+        $('#linkTable').DataTable();
+    } );
+
+    const id = document.querySelector('input[name="site_id"]').value;
+
+    document.getElementById('inputImage').addEventListener('change', function(event) {
+      const file = event.target.files[0];  
+      if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+          document.getElementById('previewImage').src = e.target.result;
+        };
+
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function deleteLink(link_id){
+      if(confirm("are you sure want delete this link")) {
+        fetch('http://localhost:1323/user/site/'+id+"/"+link_id, {
+            method: 'DELETE',
+        });
+        setTimeout(function(){
+          window.location.reload();
+        },500)
+      }
+    }
+
+    function patchSite() {
+        const domain= document.querySelector('input[name="domain"]').value;
+        const title= document.querySelector('input[name="title"]').value;
+        const imageInput = document.querySelector('input[name="image"]');
+        const imageFile = imageInput.files[0];
+
+        const formData = new FormData();
+        formData.append('domain', domain);
+        formData.append('title', title);
+        
+        if (imageFile) {
+            formData.append('image', imageFile);
+        }
+
+        fetch('http://localhost:1323/user/site/'+id, {
+            method: 'PATCH',
+            body: formData,
+        });
+        setTimeout(function(){
+          window.location.reload();
+        },500)
+    }
+
+    function copySite(){
+      var copyText = "http://localhost:1323/"+id;
+
+      navigator.clipboard.writeText(copyText);
+      alert("site copied")
+    }
+</script>

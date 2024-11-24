@@ -6,5 +6,6 @@ create table sites
   image tinytext not null,
   user_id varchar(50) not null,
   created_at timestamp default current_timestamp,
-  updated_at timestamp default current_timestamp on update CURRENT_TIMESTAMP
+  updated_at timestamp default current_timestamp on update CURRENT_TIMESTAMP,
+  FOREIGN KEY(user_id) REFERENCES users(id)
 );

@@ -26,17 +26,19 @@ func (c *BootstrapConfigs) Run() {
 
 	// serviceInit
 	UserService := service.NewUserService(c.Validator, c.Db, UserRepository)
-	LinkService := service.NewLinkService(c.Validator, c.Db, LinkRepository)
+	LinkService := service.NewLinkService(c.Validator, c.Db, LinkRepository, SiteRepository)
 	SiteService := service.NewSiteService(c.Validator, c.Db, SiteRepository, LinkRepository)
 
 	// controllerInit
 	UserController := controller.NewUserController(UserService)
-	SiteController := controller.NewSiteController(SiteService, LinkService)
+	SiteController := controller.NewSiteController(SiteService)
+	LinkController := controller.NewLinkController(LinkService)
 
 	routeConfig := &route.RouteConfig{
 		Echo:           c.Echo,
 		UserController: UserController,
 		SiteController: SiteController,
+		LinkController: LinkController,
 	}
 
 	route.InitRoute(routeConfig)

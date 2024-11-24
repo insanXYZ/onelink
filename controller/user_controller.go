@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"radproject/model"
@@ -23,11 +24,11 @@ func NewUserController(service *service.UserService) *UserController {
 }
 
 func (ctr *UserController) CreateLoginView(c echo.Context) error {
-	return util.RenderViewHtml(c, 200, "login.html", nil)
+	return util.RenderViewHtml(c, "login.html", nil)
 }
 
 func (ctr *UserController) CreateRegisterView(c echo.Context) error {
-	return util.RenderViewHtml(c, 200, "register.html", nil)
+	return util.RenderViewHtml(c, "register.html", nil)
 }
 
 func (ctr *UserController) CreateLandingPageView(c echo.Context) error {
@@ -40,11 +41,11 @@ func (ctr *UserController) CreateLandingPageView(c echo.Context) error {
 		auth["isLogin"] = true
 	}
 
-	return util.RenderViewHtml(c, 200, "landing_page.html", auth)
+	return util.RenderViewHtml(c, "landing_page.html", auth)
 }
 
 func (ctr *UserController) CreateDashboardView(c echo.Context) error {
-	return util.RenderViewHtml(c, 200, "dashboard.html", nil)
+	return util.RenderViewHtml(c, "dashboard.html", nil)
 }
 
 func (ctr *UserController) CreateAccountView(c echo.Context) error {
@@ -53,7 +54,7 @@ func (ctr *UserController) CreateAccountView(c echo.Context) error {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	return util.RenderViewHtml(c, 200, "account.html", *resp)
+	return util.RenderViewHtml(c, "account.html", *resp)
 }
 func (ctr *UserController) Login(c echo.Context) error {
 	const message = "login failed"
@@ -61,12 +62,12 @@ func (ctr *UserController) Login(c echo.Context) error {
 	req := new(model.LoginRequest)
 	err := c.Bind(req)
 	if err != nil {
-		return util.RedirectWithError(c, 303, "/login", message)
+		return util.RedirectWithError(c, "/login", message)
 	}
 	token, err := ctr.userService.Login(c.Request().Context(), req)
 	if err != nil {
 		fmt.Println(err.Error())
-		return util.RedirectWithError(c, 303, "/login", message)
+		return util.RedirectWithError(c, "/login", message)
 	}
 
 	cookie := new(http.Cookie)
@@ -76,24 +77,20 @@ func (ctr *UserController) Login(c echo.Context) error {
 
 	c.SetCookie(cookie)
 
-	return c.Redirect(303, "/user/dashboard")
+	return util.Redirect(c, "/user/dashboard")
 }
 
 func (ctr *UserController) Register(c echo.Context) error {
 	req := new(model.RegisterRequest)
 	err := c.Bind(req)
 	if err != nil {
-		return util.RedirectWithError(c, 303, "/register", err.Error())
+		return util.RedirectWithError(c, "/register", err.Error())
 	}
 	err = ctr.userService.Register(c.Request().Context(), req)
 	if err != nil {
-		return util.RedirectWithError(c, 303, "/register", err.Error())
+		return util.RedirectWithError(c, "/register", err.Error())
 	}
-	err = c.Redirect(303, "/login")
-	if err != nil {
-		fmt.Println("error redirect " + err.Error())
-	}
-	return err
+	return util.Redirect(c, "/login")
 }
 
 func (ctr *UserController) UpdateUser(c echo.Context) error {
@@ -102,7 +99,9 @@ func (ctr *UserController) UpdateUser(c echo.Context) error {
 	req := new(model.UpdateUserRequest)
 	err := c.Bind(req)
 	if err != nil {
-		return util.RedirectWithError(c, 303, "/user/account", err.Error())
+		fmt.Println(*req)
+		log.Println(err.Error())
+		return util.RedirectWithError(c, "/user/account", err.Error())
 	}
 
 	file, err := c.FormFile("image")
@@ -112,10 +111,11 @@ func (ctr *UserController) UpdateUser(c echo.Context) error {
 
 	err = ctr.userService.UpdateUser(c.Request().Context(), claims, req)
 	if err != nil {
-		return util.RedirectWithError(c, 303, "/user/account", err.Error())
+		log.Println(err.Error())
+		return util.RedirectWithError(c, "/user/account", err.Error())
 	}
 
-	return c.Redirect(303, "/user/account")
+	return util.Redirect(c, "/user/account")
 }
 
 func (ctr *UserController) Logout(c echo.Context) error {
@@ -126,5 +126,5 @@ func (ctr *UserController) Logout(c echo.Context) error {
 	}
 	c.SetCookie(cookie)
 
-	return c.Redirect(303, "/")
+	return util.Redirect(c, "/")
 }
