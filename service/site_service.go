@@ -23,18 +23,31 @@ type SiteService struct {
 	validator      *validator.Validate
 	db             *sql.DB
 	siteRepository *repository.SiteRepository
+	LinkRepository *repository.LinkRepository
 }
 
-func NewSiteService(validator *validator.Validate, db *sql.DB, repository *repository.SiteRepository) *SiteService {
+func NewSiteService(validator *validator.Validate, db *sql.DB, siteRepository *repository.SiteRepository, linkRepository *repository.LinkRepository) *SiteService {
 	return &SiteService{
 		validator:      validator,
 		db:             db,
-		siteRepository: repository,
+		siteRepository: siteRepository,
+		LinkRepository: linkRepository,
 	}
 }
 
-func (s *SiteService) GetAllSites(ctx context.Context, claims jwt.MapClaims) ([]entity.Sites, error) {
-	return s.siteRepository.SelectAllById(ctx, s.db, claims["id"].(string))
+func (s *SiteService) GetAllSites(ctx context.Context, claims jwt.MapClaims) ([]model.SiteResponse, error) {
+	res := make([]model.SiteResponse, 0)
+
+	sites, err := s.siteRepository.SelectAllById(ctx, s.db, claims["id"].(string))
+	if err != nil {
+		return res, err
+	}
+
+	for _, v := range sites {
+		res = append(res, *model.EntityToSiteResponse(&v))
+	}
+
+	return res, err
 }
 
 func (s *SiteService) CreateSite(ctx context.Context, claims jwt.MapClaims, request *model.CreateSiteRequest) error {
@@ -50,6 +63,7 @@ func (s *SiteService) CreateSite(ctx context.Context, claims jwt.MapClaims, requ
 
 	site := &entity.Sites{
 		Id:      uuid.New().String(),
+		Domain:  strings.ReplaceAll(request.Domain, " ", "_"),
 		Title:   request.Title,
 		User_Id: claims["id"].(string),
 	}
@@ -93,4 +107,12 @@ func (s *SiteService) CreateSite(ctx context.Context, claims jwt.MapClaims, requ
 	}
 
 	return tx.Commit()
+}
+
+func (s *SiteService) DeleteSite(ctx context.Context, claims jwt.MapClaims, req *model.DeleteSiteRequest) error {
+	err := s.validator.Struct(req)
+	if err != nil {
+		return err
+	}
+	return s.siteRepository.Delete(ctx, s.db, req.Id, claims["id"].(string))
 }

@@ -2,7 +2,7 @@
 {{template "header_user_layout.html"}}
 
 <div class="w-full h-full flex items-center justify-center">
-  <div class="w-full h-5/6 flex flex-col">
+  <div class="w-full h-5/6 flex flex-col gap-5">
     <!--topbar-->
     <div class="flex justify-between items-center bg-base-100 p-2 rounded-full">
       <button class="btn btn-neutral w-32" onclick="my_modal_2.showModal()">create</button>
@@ -13,6 +13,7 @@
             <img src="/storage/image/assets/shop_icon.svg" id="previewImage" class="w-full h-full object-contain">
           </label>
           <input type="file" id="inputImage" name="image" accept="image/*" class="hidden" required>
+          <input type="text" name="domain" placeholder="Domain" class="input input-bordered w-full" min="3" required />
           <input type="text" name="title" placeholder="Title" class="input input-bordered w-full" min="3" required />
           <button class="btn-neutral btn">create</button>
         </form>
@@ -20,19 +21,51 @@
         <button>close</button>
       </form>
       </dialog>
-      <div>
-        jumlah 3
-      </div>
     </div>
 
     <!--datatable-->
-    
+    <div class="w-full h-full p-4 bg-base-100 rounded-xl overflow-y-scroll">
+      <table id="siteTable">
+          <thead>
+              <tr>
+                  <th>Image</th>
+                  <th>Id</th>
+                  <th>Domain</th>
+                  <th>Title</th>
+                  <th>Action</th>
+              </tr>
+          </thead>
+          <tbody>
+          {{ if .Data }}
+            {{range $i,$v := .Data}}
+          <tr>
+            <th><img src="{{$v.Image}}" class="h-20"></th>
+            <th>{{$v.Id}}</th>
+            <th>{{$v.Domain}}</th>
+            <th>{{$v.Title}}</th>
+            <th> 
+              <div class="flex gap-1">
+                <a href="/user/site/{{$v.Id}}"><img src="/storage/image/assets/edit_icon.svg" class="w-7 rounded-xl p-1 bg-green-300"></a>
+                <button onclick="DeleteSite('{{$v.Id}}');"><img src="/storage/image/assets/trash_icon.svg" class="w-7 rounded-xl p-1 bg-red-300"></button>
+              </div>
+            </th>
+          </tr>
+            {{end}}
+          {{end}}
+          </tbody>
+      </table>
+    </div>
   </div>
 </div>
-
 {{template "footer_user_layout.html"}}
-
+{{template "footer.html"}}
+<script src="/storage/js/jquery.js"></script>
+<script src="/storage/js/datatables.min.js"></script>
 <script>
+    $(document).ready( function () {
+        $('#siteTable').DataTable();
+    } );
+
     document.getElementById('inputImage').addEventListener('change', function(event) {
     const file = event.target.files[0];  
     if (file) {
@@ -45,5 +78,18 @@
       reader.readAsDataURL(file);
     }
   });
+
+    function DeleteSite(id){
+
+      var formData = new FormData();
+      formData.append("id",id)
+
+      fetch('http://localhost:1323/user/site', {
+          method: 'DELETE',
+          body: formData,
+      });
+
+      window.location.reload();
+    } 
 </script>
-{{template "footer.html"}}
+

@@ -28,7 +28,7 @@ func (r *SiteRepository) SelectAllById(ctx context.Context, db *sql.DB, id strin
 
 	for rows.Next() {
 		site := entity.Sites{}
-		rows.Scan(&site.Id, &site.Title, &site.Image, &site.User_Id, &site.Created_At, &site.Updated_At)
+		rows.Scan(&site.Id, &site.Domain, &site.Title, &site.Image, &site.User_Id, &site.Created_At, &site.Updated_At)
 		res = append(res, site)
 	}
 
@@ -36,7 +36,13 @@ func (r *SiteRepository) SelectAllById(ctx context.Context, db *sql.DB, id strin
 }
 
 func (r *SiteRepository) Save(ctx context.Context, db ExecSql, ent *entity.Sites) error {
-	query := "insert into sites(id,title,image,user_id) values(?,?,?,?)"
-	_, err := db.ExecContext(ctx, query, ent.Id, ent.Title, ent.Image, ent.User_Id)
+	query := "insert into sites(id,domain,title,image,user_id) values(?,?,?,?,?)"
+	_, err := db.ExecContext(ctx, query, ent.Id, ent.Domain, ent.Title, ent.Image, ent.User_Id)
+	return err
+}
+
+func (r *SiteRepository) Delete(ctx context.Context, db ExecSql, id, user_id string) error {
+	query := "delete from sites where id = ? and user_id = ?"
+	_, err := db.ExecContext(ctx, query, id, user_id)
 	return err
 }

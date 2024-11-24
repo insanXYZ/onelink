@@ -22,14 +22,16 @@ func (c *BootstrapConfigs) Run() {
 	// repositoryInit
 	UserRepository := repository.NewUserRepository()
 	SiteRepository := repository.NewSiteRepository()
+	LinkRepository := repository.NewLinkRepository()
 
 	// serviceInit
 	UserService := service.NewUserService(c.Validator, c.Db, UserRepository)
-	SiteService := service.NewSiteService(c.Validator, c.Db, SiteRepository)
+	LinkService := service.NewLinkService(c.Validator, c.Db, LinkRepository)
+	SiteService := service.NewSiteService(c.Validator, c.Db, SiteRepository, LinkRepository)
 
 	// controllerInit
 	UserController := controller.NewUserController(UserService)
-	SiteController := controller.NewSiteController(SiteService)
+	SiteController := controller.NewSiteController(SiteService, LinkService)
 
 	routeConfig := &route.RouteConfig{
 		Echo:           c.Echo,

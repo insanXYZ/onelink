@@ -52,22 +52,6 @@ function patchUser() {
         method: 'PATCH',
         body: formData,
     });
-    //.then((response) => {
-    //    console.log('PATCH Response.status: ', response.status);
-    //    if (response.status !== 204) {
-    //        return response.json();
-    //    } else {
-    //        return response.statusText;
-    //    }
-    //})
-    //.then((data) => {
-    //    alert(data); 
-    //})
-    //.catch((error) => {
-    //    console.error('Error:', error);
-    //    alert('Terjadi kesalahan saat mengirim data.');
-    //});
-
     window.location.reload();
 }
 

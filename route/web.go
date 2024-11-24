@@ -32,7 +32,13 @@ func InitRoute(config *RouteConfig) {
 	user.GET("/logout", config.UserController.Logout)
 
 	site := user.Group("/site")
+	site.GET("/", func(c echo.Context) error {
+		return c.Redirect(303, "/user/site")
+	})
 	site.GET("", config.SiteController.CreateSiteView)
 	site.POST("", config.SiteController.CreateSite)
+	site.DELETE("", config.SiteController.Delete)
+
+	site.GET("/:id", config.SiteController.CreateEditSiteView)
 
 }
