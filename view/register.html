@@ -2,6 +2,7 @@
 {{template "header_auth_layout.html"}}
 <div class="flex flex-col w-[480px] p-7 gap-2 bg-base-100">
   <form action="/register" method="post" class="flex flex-col w-full gap-5">
+    {{template "error_alert.html" .}}
     <input type="text" name="name" placeholder="Name" class="input-bordered input w-full" min="3">
     <input type="email" name="email" placeholder="Email" class="input input-bordered w-full" />
     <input type="password" name="password" placeholder="Password" class="input input-bordered w-full" min="6" />

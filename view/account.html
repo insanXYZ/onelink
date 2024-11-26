@@ -48,7 +48,7 @@ function patchUser() {
         formData.append('image', imageFile);
     }
 
-    fetch('http://localhost:1323/user/account', {
+    fetch('/user/account', {
         method: 'PATCH',
         body: formData,
     });

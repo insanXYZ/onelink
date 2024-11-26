@@ -11,6 +11,7 @@ import (
 
 	"radproject/entity"
 	"radproject/model"
+	"radproject/model/message"
 	"radproject/repository"
 	"radproject/util"
 
@@ -66,9 +67,14 @@ func (s *UserService) Register(ctx context.Context, request *model.RegisterReque
 	if err != nil {
 		return util.HandleValidatorStruct(err)
 	}
+
+	_, err = s.userRepository.Select(ctx, s.db, "email", request.Email)
+	if err == nil {
+		return message.ERR_REGISTER_EMAIL_USED
+	}
 	b, _ := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 
-	user := &entity.User{
+	userCreate := &entity.User{
 		ID:       uuid.New().String(),
 		Name:     request.Name,
 		Email:    request.Email,
@@ -76,7 +82,7 @@ func (s *UserService) Register(ctx context.Context, request *model.RegisterReque
 		Password: string(b),
 	}
 
-	return s.userRepository.Save(ctx, s.db, user)
+	return s.userRepository.Save(ctx, s.db, userCreate)
 }
 
 func (s *UserService) GetAccount(ctx context.Context, claims jwt.MapClaims) (*model.UserResponse, error) {

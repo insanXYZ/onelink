@@ -49,7 +49,7 @@ func isExpired(claims jwt.MapClaims) bool {
 	return int64(claims["exp"].(float64)) <= time.Now().Unix()
 }
 
-func Guest(next echo.HandlerFunc) echo.HandlerFunc {
+func (m *Middleware) Guest(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		if token, exist := getCookiesSessionToken(c); exist {
@@ -88,7 +88,7 @@ func Guest(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-func IsLogin(next echo.HandlerFunc) echo.HandlerFunc {
+func (m *Middleware) IsLogin(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		if token, exist := getCookiesSessionToken(c); exist {

@@ -16,6 +16,10 @@ type SiteResponse struct {
 	Updated_At time.Time      `json:"updated_at,omitempty"`
 }
 
+type ViewPublishSite struct {
+	DomainSite string `param:"domain_site" validate:"required"`
+}
+
 type CreateSiteRequest struct {
 	Title  string `form:"title" validate:"min=3,required"`
 	Domain string `form:"domain" validate:"min=3,required"`

@@ -12,6 +12,34 @@ func NewSiteRepository() *SiteRepository {
 	return &SiteRepository{}
 }
 
+func (r *SiteRepository) SelectWhere(ctx context.Context, db SqlMetdod, field string, arguments ...any) (*entity.Sites, error) {
+	site := new(entity.Sites)
+	query := "select * from sites where " + field + " limit 1"
+	err := db.QueryRowContext(ctx, query, arguments...).Scan(&site.Id, &site.Domain, &site.Title, &site.Image, &site.User_Id, &site.Created_At, &site.Updated_At)
+	return site, err
+}
+
+// you shoud use s variable for represent sites table on field parameter
+// for example
+// // s.id -> sites.id
+func (r *SiteRepository) SelectWhereWithJoinLink(ctx context.Context, db SqlMetdod, field string, arguments ...string) (*entity.Sites, error) {
+	site := new(entity.Sites)
+	query := "select * from sites s left join links l on s.id = l.site_id where " + field
+
+	rows, err := db.QueryContext(ctx, query, arguments)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		link := entity.Links{}
+		rows.Scan(&site.Id, &site.Domain, &site.Title, &site.Image, &site.User_Id, &site.Created_At, &site.Updated_At, &link.Id, &link.Title, &link.Href, &link.Site_Id, &link.CreatedAt, &link.UpdatedAt)
+		site.Links = append(site.Links, link)
+	}
+	return site, nil
+}
+
 func (r *SiteRepository) SelectWithIdAndUser(ctx context.Context, db SqlMetdod, id, user_id string) (*entity.Sites, error) {
 	site := new(entity.Sites)
 	query := "select * from sites where id = ? and user_id = ?"
@@ -19,7 +47,29 @@ func (r *SiteRepository) SelectWithIdAndUser(ctx context.Context, db SqlMetdod, 
 	return site, err
 }
 
-func (r *SiteRepository) SelectWithJoinLink(ctx context.Context, db SqlMetdod, id, user_id string) (*entity.Sites, error) {
+func (r *SiteRepository) SelectWithJoinLinkByDomain(ctx context.Context, db SqlMetdod, domain string) (*entity.Sites, error) {
+	site := new(entity.Sites)
+	query := "select * from sites s left join links l on s.id = l.site_id where s.domain = ?"
+
+	rows, err := db.QueryContext(ctx, query, domain)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		link := entity.Links{}
+		rows.Scan(&site.Id, &site.Domain, &site.Title, &site.Image, &site.User_Id, &site.Created_At, &site.Updated_At, &link.Id, &link.Title, &link.Href, &link.Site_Id, &link.CreatedAt, &link.UpdatedAt)
+		site.Links = append(site.Links, link)
+	}
+
+	if site.Id == "" {
+		return nil, sql.ErrNoRows
+	}
+	return site, nil
+}
+
+func (r *SiteRepository) SelectWithJoinLinkByUser(ctx context.Context, db SqlMetdod, id, user_id string) (*entity.Sites, error) {
 	site := new(entity.Sites)
 	query := "select * from sites s left join links l on s.id = l.site_id where s.id = ? and s.user_id = ?"
 

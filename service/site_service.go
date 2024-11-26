@@ -7,6 +7,7 @@ import (
 	"os"
 	"radproject/entity"
 	"radproject/model"
+	"radproject/model/message"
 	"radproject/repository"
 	"strconv"
 	"strings"
@@ -60,9 +61,21 @@ func (s *SiteService) CreateSite(ctx context.Context, claims jwt.MapClaims, requ
 		return err
 	}
 
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	domain := strings.ReplaceAll(request.Domain, " ", "_")
+	_, err = s.siteRepository.SelectWhere(ctx, tx, "domain = ?", domain)
+	if err == nil {
+		tx.Rollback()
+		return message.ERR_CREATE_SITE_DOMAIN_USED
+	}
+
 	site := &entity.Sites{
 		Id:      uuid.New().String(),
-		Domain:  strings.ReplaceAll(request.Domain, " ", "_"),
+		Domain:  domain,
 		Title:   request.Title,
 		User_Id: claims["id"].(string),
 	}
@@ -72,11 +85,6 @@ func (s *SiteService) CreateSite(ctx context.Context, claims jwt.MapClaims, requ
 	filename := "site-" + site.Id + "-" + strconv.Itoa(int(time.Now().Unix())) + "." + ext
 
 	site.Image = filename
-
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
 
 	err = s.siteRepository.Save(ctx, tx, site)
 	if err != nil {
@@ -142,7 +150,7 @@ func (s *SiteService) GetSite(ctx context.Context, claims jwt.MapClaims, id_site
 		return nil, err
 	}
 
-	site, err := s.siteRepository.SelectWithJoinLink(ctx, s.db, id_site, claims["id"].(string))
+	site, err := s.siteRepository.SelectWithJoinLinkByUser(ctx, s.db, id_site, claims["id"].(string))
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +172,7 @@ func (s *SiteService) UpdateSite(ctx context.Context, claims jwt.MapClaims, req 
 	}
 
 	if req.Domain != "" {
-		site.Domain = req.Domain
+		site.Domain = strings.ReplaceAll(req.Domain, " ", "_")
 	}
 	if req.Title != "" {
 		site.Title = req.Title
@@ -207,4 +215,23 @@ func (s *SiteService) UpdateSite(ctx context.Context, claims jwt.MapClaims, req 
 		}
 	}
 	return tx.Commit()
+}
+
+func (s *SiteService) GetSiteWithDomain(ctx context.Context, req *model.ViewPublishSite) (*model.SiteResponse, error) {
+	err := s.validator.Struct(req)
+	if err != nil {
+		return nil, err
+	}
+
+	split := strings.Split(req.DomainSite, ".")
+	domain := strings.Join(split[:len(split)-1], ".")
+	if split[len(split)-1] != "site" {
+		return nil, message.ERR_PUBLISH_SITE_DOMAIN
+	}
+
+	site, err := s.siteRepository.SelectWithJoinLinkByDomain(ctx, s.db, domain)
+	if err != nil {
+		return nil, err
+	}
+	return model.EntityToSiteResponse(site), nil
 }

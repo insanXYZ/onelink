@@ -1,11 +1,11 @@
 package controller
 
 import (
-	"fmt"
-	"log"
+	"errors"
 	"net/http"
 
 	"radproject/model"
+	"radproject/model/message"
 	"radproject/service"
 	"radproject/util"
 
@@ -52,12 +52,13 @@ func (ctr *UserController) CreateAccountView(c echo.Context) error {
 	claims := c.Get("user").(jwt.MapClaims)
 	resp, err := ctr.userService.GetAccount(c.Request().Context(), claims)
 	if err != nil {
-		fmt.Println(err.Error())
+		return err
 	}
 	return util.RenderViewHtml(c, "account.html", *resp)
 }
+
 func (ctr *UserController) Login(c echo.Context) error {
-	const message = "login failed"
+	const message = "email or password is incorrect"
 
 	req := new(model.LoginRequest)
 	err := c.Bind(req)
@@ -66,7 +67,6 @@ func (ctr *UserController) Login(c echo.Context) error {
 	}
 	token, err := ctr.userService.Login(c.Request().Context(), req)
 	if err != nil {
-		fmt.Println(err.Error())
 		return util.RedirectWithError(c, "/login", message)
 	}
 
@@ -81,14 +81,19 @@ func (ctr *UserController) Login(c echo.Context) error {
 }
 
 func (ctr *UserController) Register(c echo.Context) error {
+	error := message.ERR_REGISTER
+
 	req := new(model.RegisterRequest)
 	err := c.Bind(req)
 	if err != nil {
-		return util.RedirectWithError(c, "/register", err.Error())
+		return util.RedirectWithError(c, "/register", error.Error())
 	}
 	err = ctr.userService.Register(c.Request().Context(), req)
 	if err != nil {
-		return util.RedirectWithError(c, "/register", err.Error())
+		if errors.Is(err, message.ERR_REGISTER_EMAIL_USED) {
+			error = message.ERR_REGISTER_EMAIL_USED
+		}
+		return util.RedirectWithError(c, "/register", error.Error())
 	}
 	return util.Redirect(c, "/login")
 }
@@ -99,8 +104,6 @@ func (ctr *UserController) UpdateUser(c echo.Context) error {
 	req := new(model.UpdateUserRequest)
 	err := c.Bind(req)
 	if err != nil {
-		fmt.Println(*req)
-		log.Println(err.Error())
 		return util.RedirectWithError(c, "/user/account", err.Error())
 	}
 
@@ -111,7 +114,6 @@ func (ctr *UserController) UpdateUser(c echo.Context) error {
 
 	err = ctr.userService.UpdateUser(c.Request().Context(), claims, req)
 	if err != nil {
-		log.Println(err.Error())
 		return util.RedirectWithError(c, "/user/account", err.Error())
 	}
 

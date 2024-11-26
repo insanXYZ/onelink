@@ -1,8 +1,9 @@
 package controller
 
 import (
-	"log"
+	"errors"
 	"radproject/model"
+	"radproject/model/message"
 	"radproject/service"
 	"radproject/util"
 
@@ -25,10 +26,23 @@ func (c *SiteController) CreateSiteView(ctx echo.Context) error {
 
 	sites, err := c.siteService.GetAllSites(ctx.Request().Context(), claims)
 	if err != nil {
-		log.Println(err.Error())
 	}
 
 	return util.RenderViewHtml(ctx, "site.html", sites)
+}
+
+func (c *SiteController) CreatePublishSiteView(ctx echo.Context) error {
+	req := new(model.ViewPublishSite)
+	err := ctx.Bind(req)
+	if err != nil {
+		return util.RedirectWithError(ctx, "/", "")
+	}
+	site, err := c.siteService.GetSiteWithDomain(ctx.Request().Context(), req)
+	if err != nil {
+		return util.RedirectWithError(ctx, "/", "")
+	}
+
+	return util.RenderViewHtml(ctx, "publish_site.html", *site)
 }
 
 func (c *SiteController) CreateEditSiteView(ctx echo.Context) error {
@@ -44,27 +58,27 @@ func (c *SiteController) CreateEditSiteView(ctx echo.Context) error {
 }
 
 func (c *SiteController) CreateSite(ctx echo.Context) error {
-	const message = "create site failed"
+	error := message.ERR_CREATE_SITE
 
 	claims := ctx.Get("user").(jwt.MapClaims)
 	req := new(model.CreateSiteRequest)
 	err := ctx.Bind(req)
 	if err != nil {
-		log.Println(err.Error())
-		return util.RedirectWithError(ctx, "/user/site", message)
+		return util.RedirectWithError(ctx, "/user/site", error.Error())
 	}
 
 	file, err := ctx.FormFile("image")
 	if err != nil {
-		log.Println(err.Error())
-		return util.RedirectWithError(ctx, "/user/site", message)
+		return util.RedirectWithError(ctx, "/user/site", error.Error())
 	}
 	req.Image = file
 
 	err = c.siteService.CreateSite(ctx.Request().Context(), claims, req)
 	if err != nil {
-		log.Println(err.Error())
-		return util.RedirectWithError(ctx, "/user/site", message)
+		if errors.Is(err, message.ERR_CREATE_SITE_DOMAIN_USED) {
+			error = message.ERR_CREATE_SITE_DOMAIN_USED
+		}
+		return util.RedirectWithError(ctx, "/user/site", error.Error())
 	}
 
 	return util.Redirect(ctx, "/user/site")
@@ -76,13 +90,11 @@ func (c *SiteController) Delete(ctx echo.Context) error {
 	req := new(model.DeleteSiteRequest)
 	err := ctx.Bind(req)
 	if err != nil {
-		log.Println(err.Error())
 		return util.RedirectWithError(ctx, "/user/site", err.Error())
 	}
 
 	err = c.siteService.DeleteSite(ctx.Request().Context(), claims, req)
 	if err != nil {
-		log.Println(err.Error())
 		return util.RedirectWithError(ctx, "/user/site", err.Error())
 	}
 

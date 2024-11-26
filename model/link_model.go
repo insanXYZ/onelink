@@ -20,3 +20,7 @@ type DeleteLinkRequest struct {
 	Site_Id string `param:"site_id" validate:"required"`
 	Link_Id string `param:"link_id" validate:"required"`
 }
+
+type VisitLinkRequest struct {
+	Link_Id string `param:"id" validate:"required"`
+}

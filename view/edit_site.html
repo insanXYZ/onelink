@@ -30,7 +30,7 @@
             <button>close</button>
           </form>
         </dialog>
-        <button onclick="copySite();" class="btn btn-neutral">Share site</button>
+        <button onclick="copySite('{{.Data.Domain}}.site');" class="btn btn-neutral">Share site</button>
         <button onclick="patchSite();" class="btn btn-neutral">Save Changes</button>
       </div>    
     </div>
@@ -91,7 +91,7 @@
 
     function deleteLink(link_id){
       if(confirm("are you sure want delete this link")) {
-        fetch('http://localhost:1323/user/site/'+id+"/"+link_id, {
+        fetch('/user/site/'+id+"/"+link_id, {
             method: 'DELETE',
         });
         setTimeout(function(){
@@ -114,7 +114,7 @@
             formData.append('image', imageFile);
         }
 
-        fetch('http://localhost:1323/user/site/'+id, {
+        fetch('/user/site/'+id, {
             method: 'PATCH',
             body: formData,
         });
@@ -123,8 +123,9 @@
         },500)
     }
 
-    function copySite(){
-      var copyText = "http://localhost:1323/"+id;
+    function copySite(domain){
+      var copyText =  window.location.origin+"/"+domain;
+      console.log(copyText)
 
       navigator.clipboard.writeText(copyText);
       alert("site copied")

@@ -1,0 +1,18 @@
+{{template "header.html"}}
+<div class="w-screen h-screen flex flex-col gap-16 items-center pt-20">
+  <div class="flex flex-col items-center gap-5">
+    <img src="{{.Data.Image}}" class="w-52 aspect-square object-cover rounded-full">
+    <div class="text-3xl">
+      {{.Data.Title}}
+    </div>
+  </div>
+  {{if .Data.Links}}
+    <div class="w-2/3 flex flex-col items-center gap-5 ">
+      {{range $i , $v := .Data.Links}}
+        <a href="/link/visit/{{$v.Id}}" target="_blank" class="w-full bg-neutral rounded-full text-white text-center text-2xl p-4">{{$v.Title}}</a>
+      {{end}}
+    </div>
+  {{end}}
+
+</div>
+{{template "footer.html"}}

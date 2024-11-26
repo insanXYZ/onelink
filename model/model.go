@@ -11,7 +11,7 @@ func EntityToUserResponse(ent *entity.User) *UserResponse {
 	return &UserResponse{
 		Email: ent.Email,
 		Name:  ent.Name,
-		Image: "http://localhost" + os.Getenv("WEB_PORT") + imageDir + "user/" + ent.Image,
+		Image: os.Getenv("APP_URL") + imageDir + "user/" + ent.Image,
 		ID:    ent.ID,
 	}
 }
@@ -21,14 +21,16 @@ func EntityToSiteResponse(ent *entity.Sites) *SiteResponse {
 		Id:         ent.Id,
 		Domain:     ent.Domain,
 		Title:      ent.Title,
-		Image:      "http://localhost" + os.Getenv("WEB_PORT") + imageDir + "site/" + ent.Image,
+		Image:      os.Getenv("APP_URL") + imageDir + "site/" + ent.Image,
 		Created_At: ent.Created_At,
 		Updated_At: ent.Updated_At,
 	}
 
 	if len(ent.Links) > 0 {
 		for _, v := range ent.Links {
-			res.Links = append(res.Links, *EntitytoLinkResponse(&v))
+			if v.Id != "" {
+				res.Links = append(res.Links, *EntitytoLinkResponse(&v))
+			}
 		}
 	}
 

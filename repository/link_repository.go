@@ -12,6 +12,13 @@ func NewLinkRepository() *LinkRepository {
 	return &LinkRepository{}
 }
 
+func (r *LinkRepository) SelectWhere(ctx context.Context, db SqlMetdod, field string, arguments ...any) (*entity.Links, error) {
+	ent := new(entity.Links)
+	query := "select * from links where " + field + " limit 1"
+	err := db.QueryRowContext(ctx, query, arguments...).Scan(&ent.Id, &ent.Title, &ent.Href, &ent.Site_Id, &ent.CreatedAt, &ent.UpdatedAt)
+	return ent, err
+}
+
 func (r *LinkRepository) SelectAllWithSiteId(ctx context.Context, db *sql.DB, site_id string) ([]entity.Links, error) {
 	links := make([]entity.Links, 0)
 	query := "select * from links where site_id = ?"

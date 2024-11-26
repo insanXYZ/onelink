@@ -7,10 +7,10 @@
     <div class="flex justify-between items-center bg-base-100 p-2 rounded-full">
       <button class="btn btn-neutral w-32" onclick="my_modal_2.showModal()">create</button>
       <dialog id="my_modal_2" class="modal">
-        <form action="/user/site" method="post" class="modal-box flex flex-col gap-5" enctype="multipart/form-data">
+        <form id="postForm" action="/user/site" method="post" class="modal-box flex flex-col gap-5" enctype="multipart/form-data">
           <h3 class="text-lg font-bold">Create site</h3>
-          <label for="inputImage" class="w-full h-52 flex items-center justify-center border p-14 rounded-xl border-dashed border-accent">
-            <img src="/storage/image/assets/shop_icon.svg" id="previewImage" class="w-full h-full object-contain">
+          <label for="inputImage" class="w-full h-52 flex items-center justify-center border p-5 rounded-xl border-dashed border-accent">
+            <img src="/storage/image/assets/shop_icon.svg" id="previewImage" class="w-full h-full object-contain aspect-square">
           </label>
           <input type="file" id="inputImage" name="image" accept="image/*" class="hidden" required>
           <input type="text" name="domain" placeholder="Domain" class="input input-bordered w-full" min="3" required />
@@ -21,6 +21,9 @@
         <button>close</button>
       </form>
       </dialog>
+      <div class="w-80">
+        {{template "error_alert.html" . }}
+      </div>
     </div>
 
     <!--datatable-->
@@ -60,6 +63,7 @@
 {{template "footer_user_layout.html"}}
 {{template "footer.html"}}
 <script src="/storage/js/jquery.js"></script>
+<script src="/storage/js/axios.js"></script>
 <script src="/storage/js/datatables.min.js"></script>
 <script>
     $(document).ready( function () {
@@ -67,21 +71,21 @@
     } );
 
     document.getElementById('inputImage').addEventListener('change', function(event) {
-    const file = event.target.files[0];  
-    if (file) {
-      const reader = new FileReader();
+      const file = event.target.files[0];  
+      if (file) {
+        const reader = new FileReader();
 
-      reader.onload = function(e) {
-        document.getElementById('previewImage').src = e.target.result;
-      };
+        reader.onload = function(e) {
+          document.getElementById('previewImage').src = e.target.result;
+        };
 
-      reader.readAsDataURL(file);
-    }
-  });
+        reader.readAsDataURL(file);
+      }
+    });
 
     function DeleteSite(id){
       if(confirm("are you sure want delete this site")) {
-        fetch('http://localhost:1323/user/site/'+id, {
+        fetch('/user/site/'+id, {
             method: 'DELETE',
         });
 

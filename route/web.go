@@ -12,21 +12,23 @@ type RouteConfig struct {
 	UserController *controller.UserController
 	SiteController *controller.SiteController
 	LinkController *controller.LinkController
+	Middleware     *middleware.Middleware
 }
 
 func InitRoute(config *RouteConfig) {
 	e := config.Echo
+
 	e.Static("/storage", "storage")
 
 	e.GET("/", config.UserController.CreateLandingPageView)
 
-	guest := e.Group("", middleware.Guest)
+	guest := e.Group("", config.Middleware.Guest)
 	guest.POST("/login", config.UserController.Login)
 	guest.POST("/register", config.UserController.Register)
 	guest.GET("/login", config.UserController.CreateLoginView)
 	guest.GET("/register", config.UserController.CreateRegisterView)
 
-	user := e.Group("/user", middleware.IsLogin)
+	user := e.Group("/user", config.Middleware.IsLogin)
 	user.GET("/dashboard", config.UserController.CreateDashboardView)
 	user.GET("/account", config.UserController.CreateAccountView)
 	user.PATCH("/account", config.UserController.UpdateUser)
@@ -45,4 +47,7 @@ func InitRoute(config *RouteConfig) {
 	site.POST("/:id", config.LinkController.CreateLink)
 	site.DELETE("/:site_id/:link_id", config.LinkController.Delete)
 
+	click := e.Group("", config.Middleware.Click)
+	click.GET("/:domain_site", config.SiteController.CreatePublishSiteView)
+	click.GET("/link/visit/:id", config.LinkController.Visit)
 }

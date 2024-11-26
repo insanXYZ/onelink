@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"radproject/controller"
+	"radproject/middleware"
 	"radproject/repository"
 	"radproject/route"
 	"radproject/service"
@@ -23,22 +24,28 @@ func (c *BootstrapConfigs) Run() {
 	UserRepository := repository.NewUserRepository()
 	SiteRepository := repository.NewSiteRepository()
 	LinkRepository := repository.NewLinkRepository()
+	ClickRepository := repository.NewClikRepository()
 
 	// serviceInit
 	UserService := service.NewUserService(c.Validator, c.Db, UserRepository)
 	LinkService := service.NewLinkService(c.Validator, c.Db, LinkRepository, SiteRepository)
 	SiteService := service.NewSiteService(c.Validator, c.Db, SiteRepository, LinkRepository)
+	clickService := service.NewClickService(c.Validator, c.Db, LinkRepository, SiteRepository, ClickRepository)
 
 	// controllerInit
 	UserController := controller.NewUserController(UserService)
 	SiteController := controller.NewSiteController(SiteService)
 	LinkController := controller.NewLinkController(LinkService)
+	ClickController := controller.NewClickController(clickService)
+
+	middleware := middleware.NewMiddleware(ClickController)
 
 	routeConfig := &route.RouteConfig{
 		Echo:           c.Echo,
 		UserController: UserController,
 		SiteController: SiteController,
 		LinkController: LinkController,
+		Middleware:     middleware,
 	}
 
 	route.InitRoute(routeConfig)
