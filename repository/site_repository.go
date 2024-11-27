@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"radproject/entity"
+	"radproject/model"
 )
 
 type SiteRepository struct{}
@@ -124,4 +125,28 @@ func (r *SiteRepository) Update(ctx context.Context, db SqlMetdod, ent *entity.S
 	query := "update sites set domain = ? ,title = ?,image =? where id = ?"
 	_, err := db.ExecContext(ctx, query, ent.Domain, ent.Title, ent.Image, ent.Id)
 	return err
+}
+
+func (r *SiteRepository) GetAllWithNumberClickByUser(ctx context.Context, db SqlMetdod, user_id string, req *model.DashboardRequest) ([]entity.Sites, []any, error) {
+	sites := make([]entity.Sites, 0)
+	ids := make([]any, 0)
+	query := "select s.id, s.domain , s.title, s.image,s.created_at, count(c.clicked_at) from sites s left join clicks c on s.id = c.destination_id where s.user_id = ? and c.clicked_at between ? and ? group by s.id order by count(c.clicked_at)"
+	rows, err := db.QueryContext(ctx, query, user_id, req.From, req.To)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		site := entity.Sites{}
+		err = rows.Scan(&site.Id, &site.Domain, &site.Title, &site.Image, &site.Created_At, &site.Clicks)
+		if err != nil {
+			return nil, nil, err
+		}
+		ids = append(ids, site.Id)
+		sites = append(sites, site)
+	}
+
+	return sites, ids, nil
 }

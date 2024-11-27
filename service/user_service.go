@@ -26,6 +26,8 @@ type UserService struct {
 	validator      *validator.Validate
 	db             *sql.DB
 	userRepository *repository.UserRepository
+	siteRepository *repository.SiteRepository
+	linkRepository *repository.LinkRepository
 }
 
 func NewUserService(validator *validator.Validate, db *sql.DB, repository *repository.UserRepository) *UserService {
@@ -141,5 +143,66 @@ func (s *UserService) UpdateUser(ctx context.Context, claims jwt.MapClaims, requ
 	}
 
 	return s.userRepository.UpdateAccount(ctx, s.db, user)
+
+}
+
+func (s *UserService) Dashboard(ctx context.Context, claims jwt.MapClaims, req *model.DashboardRequest) (*model.UserResponse, int, int, error) {
+	var t time.Time
+	var sumSite, sumLink int
+	if req.From == "" {
+		t = time.Now()
+		req.From = time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Format(time.DateTime)
+	} else {
+		tt, err := time.Parse(time.DateOnly, req.From)
+		if err != nil {
+			return nil, 0, 0, err
+		}
+		t = tt
+		req.From = time.Date(tt.Year(), tt.Month(), tt.Day(), 0, 0, 0, 0, tt.Location()).Format(time.DateTime)
+	}
+
+	if req.To == "" {
+		req.To = time.Date(t.Year(), t.Month(), t.Day(), 23, 59, 59, 59, t.Location()).Format(time.DateTime)
+	} else {
+		t, err := time.Parse(time.DateOnly, req.To)
+		if err != nil {
+			return nil, 0, 0, err
+		}
+		req.To = time.Date(t.Year(), t.Month(), t.Day(), 23, 59, 59, 59, t.Location()).Format(time.DateTime)
+	}
+
+	user, err := s.userRepository.Select(ctx, s.db, "id", claims["id"].(string))
+	if err != nil {
+		return nil, 0, 0, err
+	}
+
+	userResponse := model.EntityToUserResponse(user)
+
+	sites, ids, err := s.siteRepository.GetAllWithNumberClickByUser(ctx, s.db, user.ID, req)
+	if err != nil {
+		return nil, 0, 0, err
+	}
+
+	if len(sites) != 0 {
+
+		for _, v := range sites {
+			sumSite += v.Clicks
+			userResponse.SiteResponse = append(userResponse.SiteResponse, *model.EntityToSiteResponse(&v))
+		}
+
+		links, err := s.linkRepository.GetAllWithNumberClickBySiteId(ctx, s.db, ids, req)
+		if err != nil {
+			return nil, 0, 0, err
+		}
+
+		if len(links) != 0 {
+			for _, vv := range links {
+				sumLink += vv.Clicks
+				userResponse.LinkResponse = append(userResponse.LinkResponse, *model.EntitytoLinkResponse(&vv))
+			}
+		}
+	}
+
+	return userResponse, sumSite, sumLink, nil
 
 }

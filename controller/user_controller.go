@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"log"
 	"net/http"
 
 	"radproject/model"
@@ -47,8 +48,24 @@ func (ctr *UserController) CreateLandingPageView(c echo.Context) error {
 func (ctr *UserController) CreateDashboardView(c echo.Context) error {
 
 	claims := c.Get("user").(jwt.MapClaims)
+	req := new(model.DashboardRequest)
+	err := c.Bind(req)
+	if err != nil {
+		return err
+	}
 
-	return util.RenderViewHtml(c, "dashboard.html", nil)
+	user, sumSite, sumLink, err := ctr.userService.Dashboard(c.Request().Context(), claims, req)
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+
+	return util.RenderViewHtml(c, "dashboard.html", map[string]any{
+		"Date":     *req,
+		"SumSite":  sumSite,
+		"SumLink":  sumLink,
+		"Response": *user,
+	})
 }
 
 func (ctr *UserController) CreateAccountView(c echo.Context) error {

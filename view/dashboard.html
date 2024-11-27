@@ -10,36 +10,132 @@
         <div tabindex="0" role="button" class="btn btn-neutral w-52">Filter</div>
         <ul tabindex="0" class="dropdown-content flex flex-col gap-5 bg-base-100 rounded-box z-[1] p-5 shadow">
           <li>
-            <form class="flex justify-between gap-2">
-              <input type="date" class="input-bordered input w-full">
+            <form id="singleFilter" class="flex justify-between gap-2">
+              <input id="date-1" type="date" class="input-bordered input w-full" required>
               <button class="btn btn-neutral">search</button>
             </form>
           </li>
           <li>
-            <form class="flex justify-between gap-2">
+            <form id="multiFilter" class="flex justify-between gap-2">
               <div class="flex items-center gap-2">
-              <input type="date" class="input-bordered input">
+              <input type="date" id="date-2" class="input-bordered input" required>
                <div>
                 -
                </div> 
-              <input type="date" class="input-bordered input">
+              <input type="date" id="date-3" class="input-bordered input" required>
               </div>
               <button class="btn btn-neutral">search</button>
             </form>
           </li>
         </ul>
       </div>
-      <div>
-        tangal ayena
+      <div class="mr-9">
+        {{.Data.Date.From}}
+        -
+        {{.Data.Date.To}}
       </div>
     </div>
 
     <!--datatable-->
-    <div class="w-full h-full p-4 bg-base-100 rounded-xl overflow-y-hidden hover:overflow-y-scroll">
+    <div class="w-full h-full flex flex-col gap-5 p-4 bg-base-100 rounded-xl overflow-y-hidden hover:overflow-y-scroll">
+      <div class="flex justify-between items-center gap-5">
+        <div class="w-1/2 flex flex-col gap-2 py-2 px-5 rounded-lg border-2 border-accent">
+          <div class="font-bold">
+            Site clicks
+          </div>
+          <div class="text-right text-2xl">
+            {{.Data.SumSite}}
+          </div>
+        </div>
+        <div class="w-1/2 flex flex-col gap-2 py-2 px-5 rounded-lg border-2 border-accent">
+          <div class="font-bold">
+            Link clicks
+          </div>
+          <div class="text-right text-2xl">
+            {{.Data.SumLink}}
+          </div>
+        </div>
+      </div>
+      <!--site datatable-->
+      <div class="font-bold text-xl">
+        Site Table
+      </div>
+        <table id="siteTable" class="display stripe cell-border">
+            <thead>
+                <tr>
+                    <th>Domain</th>
+                    <th>Title</th>
+                    <th>Click</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{ if .Data.Response.SiteResponse }}
+              {{range $i,$v := .Data.Response.SiteResponse}}
+            <tr>
+              <th>{{$v.Domain}}</th>
+              <th>{{$v.Title}}</th>
+              <th>{{$v.Clicks}}</th>
+            </tr>
+              {{end}}
+            {{end}}
+            </tbody>
+        </table>
 
+      <div class="font-bold text-xl">
+        Link Table
+      </div>
+
+        <table id="linkTable" class="display stripe cell-border">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Click</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{ if .Data.Response.LinkResponse }}
+              {{range $i,$v := .Data.Response.LinkResponse}}
+            <tr>
+              <th>{{$v.Title}}</th>
+              <th>{{$v.Clicks}}</th>
+            </tr>
+              {{end}}
+            {{end}}
+            </tbody>
+        </table>
     </div>
   </div>
 </div>
-
 {{template "footer_user_layout.html"}}
 {{template "footer.html"}}
+<script src="/storage/js/jquery.js"></script>
+<script src="/storage/js/datatables.min.js"></script>
+<script>
+    $(document).ready( function () {
+        $('#siteTable').DataTable();
+        $('#linkTable').DataTable();
+    } );
+    var date1 = "", date2 = "", date3 = "";
+
+    document.getElementById("singleFilter").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      window.location.href = "/user/dashboard?from="+date1
+    })
+
+    document.getElementById("multiFilter").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      window.location.href = "/user/dashboard?from="+date2+"&to="+date3
+    })
+
+    document.getElementById("date-1").addEventListener("change",function(e){
+      date1 = e.target.value;
+    })
+    document.getElementById("date-2").addEventListener("change",function(e){
+      date2 = e.target.value;
+    })
+    document.getElementById("date-3").addEventListener("change",function(e){
+      date3 = e.target.value;
+    })
+</script>

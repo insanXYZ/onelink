@@ -3,7 +3,10 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"radproject/entity"
+	"radproject/model"
+	"strings"
 )
 
 type LinkRepository struct{}
@@ -52,4 +55,35 @@ func (r *LinkRepository) Delete(ctx context.Context, db *sql.DB, id, site_id str
 	query := "delete from links where id = ? and site_id = ? "
 	_, err := db.ExecContext(ctx, query, id, site_id)
 	return err
+}
+
+func (r *LinkRepository) GetAllWithNumberClickBySiteId(ctx context.Context, db SqlMetdod, site_ids []any, req *model.DashboardRequest) ([]entity.Links, error) {
+	links := make([]entity.Links, 0)
+
+	placeholders := strings.Repeat("?,", len(site_ids)-1) + "?"
+
+	query := fmt.Sprintf("select l.title, l.site_id,l.created_at, count(c.clicked_at) from links l left join clicks c on l.id = c.destination_id where l.site_id in (%s) and c.clicked_at between ? and ? group by l.id", placeholders)
+
+	args := []any{}
+	args = append(args, site_ids...)
+	args = append(args, req.From, req.To)
+	rows, err := db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		link := entity.Links{}
+
+		err := rows.Scan(&link.Title, &link.Site_Id, &link.CreatedAt, &link.Clicks)
+		if err != nil {
+			return nil, err
+		}
+
+		links = append(links, link)
+	}
+
+	return links, nil
 }

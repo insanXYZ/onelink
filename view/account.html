@@ -34,28 +34,28 @@
   });
 
 
-function patchUser() {
-    const name = document.querySelector('input[name="name"]').value;
-    const email = document.querySelector('input[name="email"]').value;
-    const imageInput = document.querySelector('input[name="image"]');
-    const imageFile = imageInput.files[0];
+    function patchUser() {
+        const name = document.querySelector('input[name="name"]').value;
+        const email = document.querySelector('input[name="email"]').value;
+        const imageInput = document.querySelector('input[name="image"]');
+        const imageFile = imageInput.files[0];
 
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('email', email);
-    
-    if (imageFile) {
-        formData.append('image', imageFile);
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('email', email);
+        
+        if (imageFile) {
+            formData.append('image', imageFile);
+        }
+
+        fetch('/user/account', {
+            method: 'PATCH',
+            body: formData,
+        });
+        setTimeout(function(){
+          window.location.reload();
+        },500)
     }
-
-    fetch('/user/account', {
-        method: 'PATCH',
-        body: formData,
-    });
-    setTimeout(function(){
-      window.location.reload();
-    },500)
-}
 
 </script>
 {{template "footer.html"}}

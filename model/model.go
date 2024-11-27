@@ -24,6 +24,7 @@ func EntityToSiteResponse(ent *entity.Sites) *SiteResponse {
 		Image:      os.Getenv("APP_URL") + imageDir + "site/" + ent.Image,
 		Created_At: ent.Created_At,
 		Updated_At: ent.Updated_At,
+		Clicks:     ent.Clicks,
 	}
 
 	if len(ent.Links) > 0 {
@@ -44,5 +45,6 @@ func EntitytoLinkResponse(ent *entity.Links) *LinkResponse {
 		Href:      ent.Href,
 		UpdatedAt: ent.UpdatedAt,
 		CreatedAt: ent.CreatedAt,
+		Clicks:    ent.Clicks,
 	}
 }

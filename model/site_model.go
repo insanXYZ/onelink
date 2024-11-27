@@ -14,6 +14,7 @@ type SiteResponse struct {
 	Links      []LinkResponse `json:"links,omitempty"`
 	Created_At time.Time      `json:"created_at,omitempty"`
 	Updated_At time.Time      `json:"updated_at,omitempty"`
+	Clicks     int            `json:"clicks,omitempty"`
 }
 
 type ViewPublishSite struct {

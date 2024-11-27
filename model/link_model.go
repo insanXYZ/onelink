@@ -8,6 +8,7 @@ type LinkResponse struct {
 	Href      string    `json:"href,omitempty"`
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"Updated_at,omitempty"`
+	Clicks    int       `json:"clicks,omitempty"`
 }
 
 type CreateLinkRequest struct {

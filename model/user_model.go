@@ -6,13 +6,15 @@ import (
 )
 
 type UserResponse struct {
-	ID        string    `json:"id,omitempty"`
-	Name      string    `json:"name,omitempty"`
-	Email     string    `json:"email,omitempty"`
-	Password  string    `json:"password,omitempty"`
-	Image     string    `json:"image,omitempty"`
-	CreatedAt time.Time `json:"created_at,omitempty"`
-	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	ID           string         `json:"id,omitempty"`
+	Name         string         `json:"name,omitempty"`
+	Email        string         `json:"email,omitempty"`
+	Password     string         `json:"password,omitempty"`
+	Image        string         `json:"image,omitempty"`
+	CreatedAt    time.Time      `json:"created_at,omitempty"`
+	UpdatedAt    time.Time      `json:"updated_at,omitempty"`
+	SiteResponse []SiteResponse `json:"sites,omitempty"`
+	LinkResponse []LinkResponse `json:"links,omitempty"`
 }
 
 type LoginRequest struct {
