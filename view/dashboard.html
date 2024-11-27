@@ -1,4 +1,45 @@
 {{template "header.html"}}
 {{template "header_user_layout.html"}}
+
+
+<div class="w-full h-full flex items-center justify-center">
+  <div class="w-full h-5/6 flex flex-col gap-5">
+    <!--topbar-->
+    <div class="flex justify-between items-center bg-base-100 p-2 rounded-full">
+      <div class="dropdown dropdown-bottom">
+        <div tabindex="0" role="button" class="btn btn-neutral w-52">Filter</div>
+        <ul tabindex="0" class="dropdown-content flex flex-col gap-5 bg-base-100 rounded-box z-[1] p-5 shadow">
+          <li>
+            <form class="flex justify-between gap-2">
+              <input type="date" class="input-bordered input w-full">
+              <button class="btn btn-neutral">search</button>
+            </form>
+          </li>
+          <li>
+            <form class="flex justify-between gap-2">
+              <div class="flex items-center gap-2">
+              <input type="date" class="input-bordered input">
+               <div>
+                -
+               </div> 
+              <input type="date" class="input-bordered input">
+              </div>
+              <button class="btn btn-neutral">search</button>
+            </form>
+          </li>
+        </ul>
+      </div>
+      <div>
+        tangal ayena
+      </div>
+    </div>
+
+    <!--datatable-->
+    <div class="w-full h-full p-4 bg-base-100 rounded-xl overflow-y-hidden hover:overflow-y-scroll">
+
+    </div>
+  </div>
+</div>
+
 {{template "footer_user_layout.html"}}
 {{template "footer.html"}}

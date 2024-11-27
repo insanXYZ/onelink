@@ -31,3 +31,8 @@ type UpdateUserRequest struct {
 	Email string `validate:"omitempty,email" form:"email"`
 	Image *multipart.FileHeader
 }
+
+type DashboardRequest struct {
+	From string `query:"from"`
+	To   string `query:"to"`
+}

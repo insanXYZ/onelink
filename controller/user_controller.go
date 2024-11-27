@@ -45,6 +45,9 @@ func (ctr *UserController) CreateLandingPageView(c echo.Context) error {
 }
 
 func (ctr *UserController) CreateDashboardView(c echo.Context) error {
+
+	claims := c.Get("user").(jwt.MapClaims)
+
 	return util.RenderViewHtml(c, "dashboard.html", nil)
 }
 

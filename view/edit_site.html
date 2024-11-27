@@ -40,7 +40,6 @@
       <table id="linkTable">
           <thead>
               <tr>
-                  <th>Id</th>
                   <th>Title</th>
                   <th>Link</th>
                   <th>Action</th>
@@ -50,7 +49,6 @@
             {{if .Data.Links}}
               {{range $i,$v := .Data.Links}}
                 <tr>
-                  <th>{{$v.Id}}</th>
                   <th>{{$v.Title}}</th>
                   <th>{{$v.Href}}</th>
                   <th>
